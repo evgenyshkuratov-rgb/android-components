@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ChipsView">
+        <attr name="chipState" format="enum">
+            <enum name="default_state" value="0"/>
+            <enum name="active" value="1"/>
+            <enum name="avatar" value="2"/>
+        </attr>
+        <attr name="chipSize" format="enum">
+            <enum name="small" value="0"/>
+            <enum name="medium" value="1"/>
+        </attr>
+        <attr name="chipText" format="string"/>
+        <attr name="chipIcon" format="reference"/>
+        <attr name="chipAvatarImage" format="reference"/>
+        <attr name="chipCloseIcon" format="reference"/>
+        <attr name="chipsBackgroundDefault"/>
+        <attr name="chipsBackgroundActive"/>
+        <attr name="chipsTextPrimary"/>
+        <attr name="chipsCloseIconTint"/>
+    </declare-styleable>
+
+    <attr name="chipsBackgroundDefault" format="color"/>
+    <attr name="chipsBackgroundActive" format="color"/>
+    <attr name="chipsTextPrimary" format="color"/>
+    <attr name="chipsCloseIconTint" format="color"/>
+</resources>
