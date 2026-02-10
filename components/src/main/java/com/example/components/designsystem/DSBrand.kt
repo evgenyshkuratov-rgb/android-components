@@ -1,0 +1,56 @@
+package com.example.components.designsystem
+
+import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Color
+import com.example.components.chips.ChipsColorScheme
+
+enum class DSBrand(val displayName: String) {
+    FRISBEE("Frisbee"),
+    TDM("TDM"),
+    SOVER("Sover"),
+    KCHAT("KCHAT"),
+    SENSE_NEW("Sense New");
+
+    fun accentColor(isDark: Boolean): Int = when (this) {
+        FRISBEE -> Color.parseColor("#40B259")
+        TDM -> Color.parseColor(if (isDark) "#3886E1" else "#3E87DD")
+        SOVER -> Color.parseColor(if (isDark) "#C4944D" else "#C7964F")
+        KCHAT -> Color.parseColor(if (isDark) "#E9474E" else "#EA5355")
+        SENSE_NEW -> Color.parseColor("#7548AD")
+    }
+
+    fun backgroundBase(isDark: Boolean): Int {
+        if (!isDark) return Color.parseColor("#FFFFFF")
+        return when (this) {
+            SOVER -> Color.parseColor("#101D2E")
+            SENSE_NEW -> Color.parseColor("#161419")
+            else -> Color.parseColor("#1A1A1A")
+        }
+    }
+
+    fun backgroundSecond(isDark: Boolean): Int {
+        if (!isDark) return Color.parseColor("#F5F5F5")
+        return when (this) {
+            SOVER -> Color.parseColor("#1C2838")
+            SENSE_NEW -> Color.parseColor("#2A282E")
+            else -> Color.parseColor("#313131")
+        }
+    }
+
+    fun basicColor08(isDark: Boolean): Int = Color.parseColor(if (isDark) "#14FFFFFF" else "#14000000")
+    fun basicColor90(isDark: Boolean): Int = Color.parseColor(if (isDark) "#E6FFFFFF" else "#E6000000")
+    fun basicColor50(isDark: Boolean): Int = Color.parseColor(if (isDark) "#80FFFFFF" else "#80000000")
+
+    fun chipsColorScheme(isDark: Boolean) = ChipsColorScheme(
+        backgroundDefault = basicColor08(isDark),
+        backgroundActive = accentColor(isDark),
+        textPrimary = basicColor90(isDark),
+        closeIconTint = basicColor50(isDark)
+    )
+
+    companion object {
+        fun isDarkMode(context: Context): Boolean =
+            (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    }
+}
