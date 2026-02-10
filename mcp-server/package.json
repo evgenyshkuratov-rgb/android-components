@@ -1,0 +1,20 @@
+{
+  "name": "@evgenyshkuratov-rgb/android-components-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for Android components library - provides component specs to Claude",
+  "type": "module",
+  "bin": {
+    "android-components-mcp": "./index.js"
+  },
+  "files": ["index.js"],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "keywords": ["mcp", "android", "components", "kotlin", "claude"],
+  "author": "evgenyshkuratov-rgb",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evgenyshkuratov-rgb/android-components.git"
+  }
+}

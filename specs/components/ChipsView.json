@@ -1,0 +1,17 @@
+{
+  "name": "ChipsView",
+  "description": "A filter chip component with multiple states (Default, Active, Avatar) and sizes (32dp, 40dp). Used for filters, tags, and user selections. Supports Android-native theming via custom XML attributes.",
+  "import": "com.example.components.chips.ChipsView",
+  "properties": [
+    { "name": "chipText", "type": "String", "description": "The text displayed in the chip" },
+    { "name": "chipIcon", "type": "Drawable?", "description": "Optional icon displayed on the left side" },
+    { "name": "chipState", "type": "ChipState", "description": "Visual state: DEFAULT, ACTIVE, or AVATAR" },
+    { "name": "chipSize", "type": "ChipSize", "description": "Size variant: SMALL (32dp) or MEDIUM (40dp)" },
+    { "name": "chipAvatarImage", "type": "Bitmap?", "description": "User avatar image (avatar state only)" },
+    { "name": "onTap", "type": "(() -> Unit)?", "description": "Callback when chip is tapped" },
+    { "name": "onClose", "type": "(() -> Unit)?", "description": "Callback when close button tapped (avatar state only)" }
+  ],
+  "xmlUsage": "<com.example.components.chips.ChipsView\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    app:chipState=\"active\"\n    app:chipSize=\"medium\"\n    app:chipText=\"Filter\"\n    app:chipIcon=\"@drawable/ic_check\"/>",
+  "kotlinUsage": "val chip = ChipsView(context)\nchip.configure(\n    text = \"Filter option\",\n    icon = drawable,\n    state = ChipsView.ChipState.ACTIVE,\n    size = ChipsView.ChipSize.MEDIUM,\n    colorScheme = brand.chipsColorScheme(isDark)\n)\nchip.onTap = { /* handle tap */ }",
+  "tags": ["chips", "filter", "tag", "selection", "avatar", "button"]
+}

@@ -1,0 +1,10 @@
+{
+  "version": "1.0.0",
+  "platform": "android",
+  "components": [
+    {
+      "name": "ChipsView",
+      "description": "Filter chip with Default, Active, and Avatar states in two sizes (32dp, 40dp)"
+    }
+  ]
+}
