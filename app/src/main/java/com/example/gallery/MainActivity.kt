@@ -6,7 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,14 +21,26 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GalleryTheme {
+            var isDarkTheme by remember { mutableStateOf(false) }
+
+            LaunchedEffect(isDarkTheme) {
+                val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+                insetsController.isAppearanceLightStatusBars = !isDarkTheme
+                insetsController.isAppearanceLightNavigationBars = !isDarkTheme
+            }
+
+            GalleryTheme(darkTheme = isDarkTheme) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "catalog") {
                         composable("catalog") {
-                            CatalogScreen(onComponentClick = { componentId ->
-                                navController.navigate("preview/$componentId")
-                            })
+                            CatalogScreen(
+                                isDarkTheme = isDarkTheme,
+                                onThemeChanged = { isDarkTheme = it },
+                                onComponentClick = { componentId ->
+                                    navController.navigate("preview/$componentId")
+                                }
+                            )
                         }
                         composable("preview/{componentId}") { backStackEntry ->
                             val componentId = backStackEntry.arguments?.getString("componentId") ?: ""

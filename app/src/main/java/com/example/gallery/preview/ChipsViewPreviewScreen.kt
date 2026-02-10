@@ -25,23 +25,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.components.chips.ChipsView
 import com.example.components.designsystem.DSBrand
+import com.example.components.designsystem.DSCornerRadius
 import com.example.components.designsystem.DSIcon
-import com.example.components.R as ComponentsR
-
-private val RobotoFamily = FontFamily(
-    Font(ComponentsR.font.roboto, FontWeight.Normal),
-    Font(ComponentsR.font.roboto, FontWeight.Medium),
-    Font(ComponentsR.font.roboto, FontWeight.Bold),
-)
+import com.example.components.designsystem.DSTypography
+import com.example.gallery.theme.toComposeTextStyle
 
 @Composable
 fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
@@ -71,7 +62,7 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = componentId, style = TextStyle(fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 28.sp), color = MaterialTheme.colorScheme.onSurface)
+            Text(text = componentId, style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         }
         SegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
         val bgColor = Color(brand.backgroundSecond(isDark))
@@ -116,15 +107,15 @@ private fun DropdownSelector(label: String, options: List<String>, selectedIndex
     var triggerWidth by remember { mutableStateOf(0) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = label, style = TextStyle(fontFamily = RobotoFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp), color = MaterialTheme.colorScheme.onSurface)
+        Text(text = label, style = DSTypography.subhead4M.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         Box {
             Row(
-                modifier = Modifier.fillMaxWidth().onSizeChanged { triggerWidth = it.width }.clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).clickable { expanded = true }.padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth().onSizeChanged { triggerWidth = it.width }.clip(RoundedCornerShape(DSCornerRadius.inputField.dp)).background(MaterialTheme.colorScheme.surfaceVariant).clickable { expanded = true }.padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = options[selectedIndex],
-                    style = TextStyle(fontFamily = RobotoFamily, fontWeight = FontWeight.Normal, fontSize = 16.sp),
+                    style = DSTypography.body1R.toComposeTextStyle(),
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
@@ -144,7 +135,7 @@ private fun DropdownSelector(label: String, options: List<String>, selectedIndex
             ) {
                 options.forEachIndexed { index, option ->
                     DropdownMenuItem(
-                        text = { Text(text = option, style = TextStyle(fontFamily = RobotoFamily, fontSize = 16.sp)) },
+                        text = { Text(text = option, style = DSTypography.body1R.toComposeTextStyle()) },
                         onClick = { onSelect(index); expanded = false }
                     )
                 }
@@ -156,7 +147,7 @@ private fun DropdownSelector(label: String, options: List<String>, selectedIndex
 @Composable
 private fun ControlRow(label: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(text = label, style = TextStyle(fontFamily = RobotoFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp), color = MaterialTheme.colorScheme.onSurface)
+        Text(text = label, style = DSTypography.subhead4M.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         content()
     }
 }
@@ -164,7 +155,7 @@ private fun ControlRow(label: String, content: @Composable () -> Unit) {
 @Composable
 private fun SegmentedControl(options: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(4.dp),
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(DSCornerRadius.inputField.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         options.forEachIndexed { index, option ->
@@ -175,7 +166,7 @@ private fun SegmentedControl(options: List<String>, selectedIndex: Int, onSelect
             ) {
                 Text(
                     text = option,
-                    style = TextStyle(fontFamily = RobotoFamily, fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal, fontSize = 14.sp),
+                    style = if (isSelected) DSTypography.subhead4M.toComposeTextStyle() else DSTypography.subhead2R.toComposeTextStyle(),
                     color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             }

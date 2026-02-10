@@ -12,11 +12,12 @@ These rules are non-negotiable. Every component and screen must follow them.
 
 ### Icons -- ONLY from icons-library
 
-- 280 icons loaded via `DSIcon.named(context, "icon-name", sizeDp)` from SVG assets
+- 280 icons + Frisbee logo loaded via `DSIcon.named(context, "icon-name", sizeDp)` from SVG assets
+- Colored/branded icons (logos): use `DSIcon.coloredNamed(context, "name", heightDp)` -- preserves SVG fill colors, maintains aspect ratio
 - **NEVER** use Android vector drawables, Material icons, `@drawable/*`, or any other icon source
 - **NEVER** use Unicode characters as icon substitutes (arrows, chevrons, etc.)
 - All icons rendered at runtime from SVG path data via `DSIcon` + `SVGPathParser`
-- In Compose screens: convert `BitmapDrawable` to `ImageBitmap` via `asImageBitmap()` with `ColorFilter.tint()`
+- In Compose screens: convert `BitmapDrawable` to `ImageBitmap` via `asImageBitmap()` with `ColorFilter.tint()` (or no tint for colored icons)
 
 ### Colors -- ONLY from icons-library color tokens
 
@@ -36,7 +37,8 @@ These rules are non-negotiable. Every component and screen must follow them.
 
 - 37 styles from `DSTypography`, Roboto variable font bundled in `res/font/`
 - **NEVER** use system fonts, other typefaces, or custom sizes outside DS tokens
-- In Compose: use `FontFamily(Font(ComponentsR.font.roboto, FontWeight.*))`
+- In Compose: use `DSTypography.<style>.toComposeTextStyle()` extension from `DSTypographyCompose.kt`
+- Shared `RobotoFamily` and `RobotoMonoFamily` defined in `DSTypographyCompose.kt` -- **NEVER** redeclare per-screen
 
 ### Spacing
 
@@ -89,14 +91,17 @@ android-components/
 ├── app/                                 # Gallery app (Jetpack Compose)
 │   ├── src/main/
 │   │   ├── java/com/example/gallery/
-│   │   │   ├── MainActivity.kt          # Single activity, Compose NavHost
+│   │   │   ├── MainActivity.kt          # Single activity, Compose NavHost, theme state
 │   │   │   ├── catalog/
-│   │   │   │   └── CatalogScreen.kt     # Component catalog with search
+│   │   │   │   └── CatalogScreen.kt     # Component catalog with search + theme toggle
 │   │   │   ├── preview/
 │   │   │   │   └── ChipsViewPreviewScreen.kt # Interactive preview
 │   │   │   └── theme/
-│   │   │       └── GalleryTheme.kt      # Compose theme wrapping DS tokens
-│   │   ├── assets/icons/                # 280 SVG icons from icons-library
+│   │   │       ├── GalleryTheme.kt      # Compose theme wrapping DS tokens
+│   │   │       └── DSTypographyCompose.kt # DSTextStyle → Compose TextStyle bridge
+│   │   ├── assets/
+│   │   │   ├── icons/                   # 280 SVG icons + frisbee-logo.svg
+│   │   │   └── design-system-counts.json # Component/icon/color counts with timestamps
 │   │   └── res/
 │   └── build.gradle.kts
 │
@@ -256,17 +261,21 @@ cd mcp-server && npm install
 A Jetpack Compose application that showcases all components with interactive controls.
 
 ### Catalog Screen
-- Title "Components Library" with Roboto Bold 32sp
-- Status line: dynamic component/icon/color counts + last updated date
-- Search bar with `search` icon from icons-library
-- Component cards with name, description, and `arrow-right-s` chevron icon from icons-library
+- **Header row**: Frisbee logo (44dp, colored via `DSIcon.coloredNamed`) + Light/Dark segmented control
+- **Theme toggle**: switches entire app theme via `MainActivity` state + `WindowCompat.getInsetsController()` for status bar icons
+- Title "Components Library" with `DSTypography.title1B`
+- Status line: dynamic counts with relative timestamps from `design-system-counts.json` (e.g., "1 Component (3d) · 280 Icons (2h) · 157 Colors (1d)")
+- Search bar with `search` icon from icons-library, `DSTypography.body1R`
+- Component cards with `DSTypography.subtitle1M` name, `DSTypography.subhead2R` description, `arrow-right-s` chevron
 - Press animation (scale 0.95)
+- All spacing uses `DSSpacing` tokens, all corner radii use `DSCornerRadius`
 
 ### Preview Screens
 - **Back button**: `back` icon from icons-library (never Unicode)
-- **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sense New)
+- **Title**: component name with `DSTypography.title5B`
+- **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sense New) using `DSTypography.subhead4M`/`subhead2R`
 - **Preview container**: rounded card with brand-colored background, live component via `AndroidView`
-- **Controls**: dropdown selectors for State and Size (`select-down` icon), segmented control for Theme (Light/Dark)
+- **Controls**: dropdown selectors for State and Size (`select-down` icon, `DSTypography.body1R`), labels with `DSTypography.subhead4M`, segmented control for Theme (Light/Dark)
 
 ### Navigation
 - Single-activity architecture with Compose `NavHost`
@@ -294,9 +303,11 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ## For LLMs
 
-- **Icons**: always use `DSIcon.named(context, "name", sizeDp)` -- check `list_icons` MCP tool for available names
+- **Icons**: always use `DSIcon.named(context, "name", sizeDp)` for monochrome icons, `DSIcon.coloredNamed(context, "name", heightDp)` for branded/colored icons -- check `list_icons` MCP tool for available names
 - **Colors**: always use `DSBrand` and `DSColors` -- check `list_colors` MCP tool for available tokens
-- **Typography**: always use `DSTypography` styles or Roboto `FontFamily` in Compose
+- **Typography in Compose**: always use `DSTypography.<style>.toComposeTextStyle()` -- never create inline `TextStyle(fontFamily=..., fontSize=...)` definitions
+- **Typography in Views**: use `DSTypography.<style>.apply(textView)` for full-fidelity styling
+- **Spacing/Radii**: always use `DSSpacing.*` and `DSCornerRadius.*` tokens -- never hardcode dp values for standard spacing
 - **New components**: follow the 6-step checklist above -- create View class, color scheme, JSON spec, preview screen
 - **Testing**: build with `./gradlew assembleDebug`, install with `adb install`
 - **Naming**: PascalCase for components (`ChipsView`), camelCase for properties, kebab-case for icon names
