@@ -3,6 +3,7 @@ package com.example.components.designsystem
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import com.example.components.checkbox.CheckboxColorScheme
 import com.example.components.chips.ChipsColorScheme
 
 enum class DSBrand(val displayName: String) {
@@ -41,6 +42,17 @@ enum class DSBrand(val displayName: String) {
     fun basicColor08(isDark: Boolean): Int = Color.parseColor(if (isDark) "#14FFFFFF" else "#14000000")
     fun basicColor90(isDark: Boolean): Int = Color.parseColor(if (isDark) "#E6FFFFFF" else "#E6000000")
     fun basicColor50(isDark: Boolean): Int = Color.parseColor(if (isDark) "#80FFFFFF" else "#80000000")
+    fun basicColor55(isDark: Boolean): Int = Color.parseColor(if (isDark) "#8CFFFFFF" else "#8C000000")
+    fun basicColor25(isDark: Boolean): Int = Color.parseColor(if (isDark) "#40FFFFFF" else "#40000000")
+
+    fun checkboxColorScheme(isDark: Boolean) = CheckboxColorScheme(
+        borderEnabled = basicColor55(isDark),
+        borderDisabled = basicColor25(isDark),
+        checkedFill = accentColor(isDark),
+        checkmarkColor = Color.WHITE,
+        textEnabled = basicColor50(isDark),
+        textDisabled = basicColor25(isDark)
+    )
 
     fun chipsColorScheme(isDark: Boolean) = ChipsColorScheme(
         backgroundDefault = basicColor08(isDark),

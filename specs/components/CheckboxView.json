@@ -1,0 +1,16 @@
+{
+  "name": "CheckboxView",
+  "description": "A checkbox component with square and circle shapes, optional label text, and enabled/disabled states. Supports brand-aware theming via CheckboxColorScheme.",
+  "import": "com.example.components.checkbox.CheckboxView",
+  "properties": [
+    { "name": "checkboxText", "type": "String", "description": "The label text displayed next to the checkbox" },
+    { "name": "checkboxShape", "type": "Shape", "description": "Shape of the checkbox indicator: SQUARE or CIRCLE" },
+    { "name": "checkboxChecked", "type": "Boolean", "description": "Whether the checkbox is checked" },
+    { "name": "checkboxEnabled", "type": "Boolean", "description": "Whether the checkbox is interactive" },
+    { "name": "checkboxShowText", "type": "Boolean", "description": "Whether to show the label text" },
+    { "name": "onCheckedChange", "type": "((Boolean) -> Unit)?", "description": "Callback fired when checked state changes" }
+  ],
+  "xmlUsage": "<com.example.components.checkbox.CheckboxView\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    app:checkboxShape=\"square\"\n    app:checkboxChecked=\"false\"\n    app:checkboxEnabled=\"true\"\n    app:checkboxShowText=\"true\"\n    app:checkboxText=\"Label\"/>",
+  "kotlinUsage": "val checkbox = CheckboxView(context)\ncheckbox.configure(\n    text = \"Label\",\n    shape = CheckboxView.Shape.SQUARE,\n    isChecked = false,\n    isEnabled = true,\n    showText = true,\n    colorScheme = brand.checkboxColorScheme(isDark)\n)\ncheckbox.onCheckedChange = { checked -> /* handle change */ }",
+  "tags": ["checkbox", "toggle", "form", "selection", "square", "circle"]
+}

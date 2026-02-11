@@ -39,7 +39,8 @@ import java.util.TimeZone
 private data class ComponentEntry(val id: String, val name: String, val description: String)
 
 private val components = listOf(
-    ComponentEntry("ChipsView", "ChipsView", "Filter chips with Default, Active, and Avatar states")
+    ComponentEntry("ChipsView", "ChipsView", "Filter chips with Default, Active, and Avatar states"),
+    ComponentEntry("CheckboxView", "CheckboxView", "Checkbox with square and circle shapes, label text, and enabled/disabled states")
 )
 
 @Composable

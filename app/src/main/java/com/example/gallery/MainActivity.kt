@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gallery.catalog.CatalogScreen
+import com.example.gallery.preview.CheckboxViewPreviewScreen
 import com.example.gallery.preview.ChipsViewPreviewScreen
 import com.example.gallery.theme.GalleryTheme
 
@@ -44,10 +45,16 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("preview/{componentId}") { backStackEntry ->
                             val componentId = backStackEntry.arguments?.getString("componentId") ?: ""
-                            ChipsViewPreviewScreen(
-                                componentId = componentId,
-                                onBack = { navController.popBackStack() }
-                            )
+                            when (componentId) {
+                                "CheckboxView" -> CheckboxViewPreviewScreen(
+                                    componentId = componentId,
+                                    onBack = { navController.popBackStack() }
+                                )
+                                else -> ChipsViewPreviewScreen(
+                                    componentId = componentId,
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                     }
                 }

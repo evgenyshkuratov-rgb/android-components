@@ -24,4 +24,21 @@
     <attr name="chipsBackgroundActive" format="color"/>
     <attr name="chipsTextPrimary" format="color"/>
     <attr name="chipsCloseIconTint" format="color"/>
+
+    <declare-styleable name="CheckboxView">
+        <attr name="checkboxShape" format="enum">
+            <enum name="square" value="0"/>
+            <enum name="circle" value="1"/>
+        </attr>
+        <attr name="checkboxChecked" format="boolean"/>
+        <attr name="checkboxEnabled" format="boolean"/>
+        <attr name="checkboxShowText" format="boolean"/>
+        <attr name="checkboxText" format="string"/>
+        <attr name="checkboxBorderEnabled" format="color"/>
+        <attr name="checkboxBorderDisabled" format="color"/>
+        <attr name="checkboxCheckedFill" format="color"/>
+        <attr name="checkboxCheckmarkColor" format="color"/>
+        <attr name="checkboxTextEnabled" format="color"/>
+        <attr name="checkboxTextDisabled" format="color"/>
+    </declare-styleable>
 </resources>
