@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val generatedAssetsDir = layout.buildDirectory.dir("generated/assets/designSystemCounts")
+
 android {
     namespace = "com.example.gallery"
     compileSdk = 34
@@ -40,6 +42,92 @@ android {
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.10"
+    }
+
+    sourceSets {
+        getByName("main") {
+            assets.srcDirs("src/main/assets", generatedAssetsDir)
+        }
+    }
+}
+
+val generateDesignSystemCounts by tasks.registering {
+    description = "Pulls latest repos and generates design-system-counts.json from icons-library"
+
+    val outputDir = generatedAssetsDir
+
+    // Never cache — always re-run so git pull + fresh counts happen on every build
+    outputs.upToDateWhen { false }
+    outputs.dir(outputDir)
+
+    doLast {
+        val outDir = outputDir.get().asFile
+        outDir.mkdirs()
+
+        val iconsRepo = File(System.getProperty("user.home"), "Clode code projects/Icons library")
+        val compsRoot = rootProject.projectDir
+
+        // 1. Pull latest from both repos (silent, skip if offline)
+        fun gitPull(repo: File) {
+            try {
+                ProcessBuilder("git", "-C", repo.absolutePath, "pull", "--ff-only")
+                    .redirectErrorStream(true)
+                    .start()
+                    .waitFor()
+            } catch (_: Exception) { /* offline — skip */ }
+        }
+        gitPull(iconsRepo)
+        gitPull(compsRoot)
+
+        // 2. Count assets from icons-library JSON files
+        val slurper = groovy.json.JsonSlurper()
+        fun jsonArrayLength(file: File, key: String): Int {
+            return try {
+                @Suppress("UNCHECKED_CAST")
+                val map = slurper.parse(file) as Map<String, Any>
+                (map[key] as? List<*>)?.size ?: 0
+            } catch (_: Exception) { 0 }
+        }
+
+        val iconCount = jsonArrayLength(File(iconsRepo, "metadata.json"), "icons")
+        val colorCount = jsonArrayLength(File(iconsRepo, "colors.json"), "colors")
+        val componentCount = jsonArrayLength(File(compsRoot, "specs/index.json"), "components")
+
+        // 3. Get last-updated timestamps via git log
+        fun gitTimestamp(repo: File, vararg paths: String): String? {
+            return try {
+                val args = listOf("git", "-C", repo.absolutePath, "log", "-1", "--format=%aI", "--") + paths.toList()
+                val process = ProcessBuilder(args)
+                    .redirectErrorStream(true)
+                    .start()
+                val result = process.inputStream.bufferedReader().readText().trim()
+                process.waitFor()
+                result.ifEmpty { null }
+            } catch (_: Exception) { null }
+        }
+
+        val iconsUpdated = gitTimestamp(iconsRepo, "icons/")
+        val colorsUpdated = gitTimestamp(iconsRepo, "colors.json")
+        val componentsUpdated = gitTimestamp(compsRoot, "Sources/", "specs/")
+
+        // 4. Write bundled JSON
+        val entries = mutableListOf<String>()
+        entries.add("  \"icons\": $iconCount")
+        entries.add("  \"colors\": $colorCount")
+        entries.add("  \"components\": $componentCount")
+        iconsUpdated?.let { entries.add("  \"icons_updated\": \"$it\"") }
+        colorsUpdated?.let { entries.add("  \"colors_updated\": \"$it\"") }
+        componentsUpdated?.let { entries.add("  \"components_updated\": \"$it\"") }
+        val json = "{\n${entries.joinToString(",\n")}\n}\n"
+
+        File(outDir, "design-system-counts.json").writeText(json)
+        logger.lifecycle("design-system-counts.json: $iconCount icons, $colorCount colors, $componentCount components")
+    }
+}
+
+afterEvaluate {
+    tasks.matching { it.name.contains("merge") && it.name.contains("Assets") }.configureEach {
+        dependsOn(generateDesignSystemCounts)
     }
 }
 

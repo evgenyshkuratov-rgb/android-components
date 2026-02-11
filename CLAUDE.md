@@ -108,10 +108,9 @@ android-components/
 │   │   │       ├── GalleryTheme.kt      # Compose theme wrapping DS tokens
 │   │   │       └── DSTypographyCompose.kt # DSTextStyle → Compose TextStyle bridge
 │   │   ├── assets/
-│   │   │   ├── icons/                   # 280 SVG icons + frisbee-logo.svg
-│   │   │   └── design-system-counts.json # Component/icon/color counts with timestamps
+│   │   │   └── icons/                   # 280 SVG icons + frisbee-logo.svg
 │   │   └── res/
-│   └── build.gradle.kts
+│   └── build.gradle.kts                 # Includes generateDesignSystemCounts task
 │
 ├── specs/                               # JSON specs for MCP
 │   ├── index.json                       # Component index (name + description)
@@ -278,7 +277,7 @@ Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generat
 
 6. **Update gallery catalog** to include the new component card in `CatalogScreen.kt`
 
-7. **Update metadata** in `app/src/main/assets/design-system-counts.json`
+7. **Metadata auto-updates** -- `design-system-counts.json` is generated at build time by `generateDesignSystemCounts` Gradle task (pulls icons-library + reads `metadata.json`/`colors.json` + git timestamps)
 
 ## JSON Spec Format
 
@@ -344,7 +343,7 @@ A Jetpack Compose application that showcases all components with interactive con
 - **Header row**: Frisbee logo (44dp, colored via `DSIcon.coloredNamed`) + Light/Dark segmented control
 - **Theme toggle**: switches entire app theme via `MainActivity` state + `WindowCompat.getInsetsController()` for status bar icons
 - Title "Components Library" with `DSTypography.title1B`
-- Status line: dynamic counts with relative timestamps from `design-system-counts.json` (e.g., "2 Components (now) · 280 Icons (22h) · 157 Colors (1d)")
+- Status line: dynamic counts with relative timestamps from `design-system-counts.json` (auto-generated at build time by `generateDesignSystemCounts` Gradle task)
 - Search bar with `search` icon from icons-library, `DSTypography.body1R`
 - Component cards with `DSTypography.subtitle1M` name, `DSTypography.subhead2R` description, `arrow-right-s` chevron
 - Press animation (scale 0.95)
@@ -362,12 +361,35 @@ A Jetpack Compose application that showcases all components with interactive con
 - Single-activity architecture with Compose `NavHost`
 - Routes: `catalog` and `preview/{componentId}`
 
+## Build-Time Sync (icons-library → status line)
+
+The gallery status line (`"2 Components (3d) · 280 Icons (1h) · 157 Colors (2d)"`) is powered by a `generateDesignSystemCounts` Gradle task in `app/build.gradle.kts` that runs on **every build** with no caching.
+
+**Update flow:**
+```
+Figma ──(every 6h Mon-Thu)──> GitHub icons-library ──(git pull on build)──> Local clone ──(read JSON + git log)──> build/generated/assets/design-system-counts.json ──(app reads at launch)──> Status line
+```
+
+**What the task does:**
+1. `git pull --ff-only` on the local **icons-library** clone and **this repo** (silent, skips if offline)
+2. Reads icon count from icons-library `metadata.json` → `icons` array length
+3. Reads color count from icons-library `colors.json` → `colors` array length
+4. Reads component count from `specs/index.json` → `components` array length
+5. Gets timestamps via `git log -1 --format=%aI`:
+   - Icons/colors timestamps from the **icons-library** repo
+   - Components timestamp from **this repo** (`Sources/`, `specs/`)
+6. Writes `design-system-counts.json` into `build/generated/assets/` (not source tree)
+
+**Icons-library local clone path:** `~/Clode code projects/Icons library/` (override via `ICONS_REPO_PATH` env var in the iOS counterpart; Android uses the same default path).
+
+**No static file** — `app/src/main/assets/design-system-counts.json` does not exist in the source tree. The file is generated fresh on every build.
+
 ## Build Instructions
 
-**Prerequisites:** Android SDK (compileSdk 34, minSdk 26), JDK 17, Node.js (for MCP server).
+**Prerequisites:** Android SDK (compileSdk 34, minSdk 26), JDK 17, Node.js (for MCP server), local clone of icons-library at `~/Clode code projects/Icons library/`.
 
 ```bash
-# Build the full project
+# Build the full project (auto-syncs design system counts)
 JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew assembleDebug
 
 # Install on device/emulator
@@ -375,6 +397,9 @@ JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradle
 
 # Build only the components library
 ./gradlew :components:assembleDebug
+
+# Run just the sync task
+JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" ./gradlew generateDesignSystemCounts
 
 # Install MCP server dependencies
 cd mcp-server && npm install
