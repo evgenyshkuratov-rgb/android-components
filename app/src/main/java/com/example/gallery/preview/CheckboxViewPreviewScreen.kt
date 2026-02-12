@@ -58,7 +58,7 @@ fun CheckboxViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = componentId, style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
+            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         }
 
         CheckboxSegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })

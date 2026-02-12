@@ -11,7 +11,7 @@ enum class DSBrand(val displayName: String) {
     TDM("TDM"),
     SOVER("Sover"),
     KCHAT("KCHAT"),
-    SENSE_NEW("Sense New");
+    SENSE_NEW("Sens");
 
     fun accentColor(isDark: Boolean): Int = when (this) {
         FRISBEE -> Color.parseColor("#40B259")

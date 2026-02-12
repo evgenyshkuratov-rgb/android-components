@@ -229,7 +229,7 @@ checkbox.onCheckedChange = { checked -> /* handle change */ }
 
 **Preview Controls:**
 
-- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sense New)
+- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens)
 - Shape: Square / Circle
 - Show Text: On / Off
 - Enabled: Yes / No
@@ -246,7 +246,7 @@ Five brands with distinct accent colors and dark-mode background variations:
 | TDM | #3E87DD | #3886E1 | #1A1A1A | #313131 |
 | Sover | #C7964F | #C4944D | #101D2E | #1C2838 |
 | KCHAT | #EA5355 | #E9474E | #1A1A1A | #313131 |
-| Sense New | #7548AD | #7548AD | #161419 | #2A282E |
+| Sens | #7548AD | #7548AD | #161419 | #2A282E |
 
 Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generate the color scheme for each component:
 - `DSBrand.chipsColorScheme(isDark)` → `ChipsColorScheme`
@@ -352,7 +352,7 @@ A Jetpack Compose application that showcases all components with interactive con
 ### Preview Screens
 - **Back button**: `back` icon from icons-library (never Unicode)
 - **Title**: component name with `DSTypography.title5B`
-- **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sense New) using `DSTypography.subhead4M`/`subhead2R`
+- **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sens) using `DSTypography.subhead4M`/`subhead2R`
 - **Preview container**: rounded card with brand-colored background, live component via `AndroidView`
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
 - **Routing**: `MainActivity.kt` dispatches to the correct preview screen via `when (componentId)` block

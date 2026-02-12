@@ -62,7 +62,7 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = componentId, style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
+            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         }
         SegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
         val bgColor = Color(brand.backgroundSecond(isDark))
