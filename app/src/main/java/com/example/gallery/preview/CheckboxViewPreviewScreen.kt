@@ -77,13 +77,12 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
 
         val brandCount = DSBrand.entries.size
         val bgColor = Color(brand.backgroundSecond(isDark))
-        val animatedBgColor by animateColorAsState(targetValue = bgColor, animationSpec = tween(300))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(animatedBgColor)
+                .background(bgColor)
                 .pointerInput(Unit) {
                     var totalDrag = 0f
                     val threshold = 50.dp.toPx()
@@ -104,23 +103,21 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
                 },
             contentAlignment = Alignment.Center
         ) {
-            Crossfade(
-                targetState = CheckboxPreviewKey(selectedShape, selectedBrand, isDarkTheme, isChecked, showText, isEnabled),
-                animationSpec = tween(200)
-            ) { target ->
-                val tBrand = DSBrand.entries[target.brand]
-                val tShape = CheckboxView.Shape.entries[target.shape]
-                val tTextVisible = target.showText == 0
-                val tEnabled = target.enabled == 0
+            val previewKey = CheckboxPreviewKey(selectedShape, selectedBrand, isDarkTheme, isChecked, showText, isEnabled)
+            key(previewKey) {
+                val tBrand = DSBrand.entries[previewKey.brand]
+                val tShape = CheckboxView.Shape.entries[previewKey.shape]
+                val tTextVisible = previewKey.showText == 0
+                val tEnabled = previewKey.enabled == 0
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     AndroidView(
                         factory = { ctx ->
                             val checkbox = CheckboxView(ctx)
-                            val colorScheme = tBrand.checkboxColorScheme(target.dark)
+                            val colorScheme = tBrand.checkboxColorScheme(previewKey.dark)
                             checkbox.configure(
                                 text = "Label",
                                 shape = tShape,
-                                isChecked = target.checked,
+                                isChecked = previewKey.checked,
                                 isEnabled = tEnabled,
                                 showText = tTextVisible,
                                 colorScheme = colorScheme

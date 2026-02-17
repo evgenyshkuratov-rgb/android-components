@@ -81,13 +81,12 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
         SegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
         val brandCount = DSBrand.entries.size
         val bgColor = Color(brand.backgroundSecond(isDark))
-        val animatedBgColor by animateColorAsState(targetValue = bgColor, animationSpec = tween(300))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(animatedBgColor)
+                .background(bgColor)
                 .pointerInput(Unit) {
                     var totalDrag = 0f
                     val threshold = 50.dp.toPx()
@@ -108,18 +107,16 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
                 },
             contentAlignment = Alignment.Center
         ) {
-            Crossfade(
-                targetState = ChipsPreviewKey(selectedState, selectedSize, selectedBrand, isDarkTheme),
-                animationSpec = tween(200)
-            ) { target ->
-                val tBrand = DSBrand.entries[target.brand]
-                val tChipState = ChipsView.ChipState.entries[target.state]
-                val tChipSize = ChipsView.ChipSize.entries[target.size]
+            val previewKey = ChipsPreviewKey(selectedState, selectedSize, selectedBrand, isDarkTheme)
+            key(previewKey) {
+                val tBrand = DSBrand.entries[previewKey.brand]
+                val tChipState = ChipsView.ChipState.entries[previewKey.state]
+                val tChipSize = ChipsView.ChipSize.entries[previewKey.size]
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     AndroidView(
                         factory = { ctx ->
                             val chip = ChipsView(ctx)
-                            val colorScheme = tBrand.chipsColorScheme(target.dark)
+                            val colorScheme = tBrand.chipsColorScheme(previewKey.dark)
                             when (tChipState) {
                                 ChipsView.ChipState.DEFAULT, ChipsView.ChipState.ACTIVE -> {
                                     val icon = DSIcon.named(ctx, "group", 24f)
@@ -127,7 +124,7 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
                                 }
                                 ChipsView.ChipState.AVATAR -> {
                                     val closeIcon = DSIcon.named(ctx, "close-s", 24f)
-                                    val avatar = createPlaceholderAvatar(ctx, tChipSize.avatarDp, tBrand, target.dark)
+                                    val avatar = createPlaceholderAvatar(ctx, tChipSize.avatarDp, tBrand, previewKey.dark)
                                     chip.configureAvatar(name = "\u0418\u043C\u044F", avatarImage = avatar, closeIcon = closeIcon, size = tChipSize, colorScheme = colorScheme)
                                 }
                             }

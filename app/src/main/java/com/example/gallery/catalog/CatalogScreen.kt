@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -223,6 +224,7 @@ private fun shortRelativeTime(isoString: String): String? {
 private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val searchIcon = remember { DSIcon.named(context, "search", 20f) as? BitmapDrawable }
+    val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
 
     BasicTextField(
         value = query,
@@ -239,7 +241,7 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: 
                     .height(48.dp)
                     .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(horizontal = 14.dp),
+                    .padding(start = 14.dp, end = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 searchIcon?.bitmap?.let { bmp ->
@@ -260,6 +262,24 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: 
                         )
                     }
                     innerTextField()
+                }
+                if (query.isNotEmpty()) {
+                    clearIcon?.bitmap?.let { bmp ->
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .clickable { onQueryChange("") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = "Clear",
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
         },
