@@ -360,7 +360,7 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Header row**: Frisbee logo (44dp, colored via `DSIcon.coloredNamed`) + Light/Dark segmented control
 - Title "Components Library" with `DSTypography.title1B`
 - Status line: dynamic counts with relative timestamps from `design-system-counts.json` (auto-generated at build time by `generateDesignSystemCounts` Gradle task)
-- Search bar with `search` icon from icons-library, `DSTypography.body1R`
+- Search bar with `search` icon from icons-library, `DSTypography.body1R`; when text is entered, a circular clear button (32dp tap target, `clear-field` icon 24dp, `CircleShape`) appears on the right with 8dp equal padding from top/bottom/right edges
 - Component cards with `DSTypography.subtitle1M` name, `DSTypography.subhead2R` description, `arrow-right-s` chevron
 - **Card press animation**: `detectTapGestures` for reliable press detection (fires on every tap), `animateFloatAsState` with `spring(dampingRatio=0.6f, stiffness=800f)` for scale (0.97f) and alpha (0.7f) -- smooth bounce-back on release
 - All spacing uses `DSSpacing` tokens, all corner radii use `DSCornerRadius`
@@ -370,7 +370,7 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Title**: component name with `DSTypography.title5B` + compact theme toggle (right-aligned)
 - **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sens) using `DSTypography.subhead4M`/`subhead2R`
 - **Brand swipe**: horizontal swipe (`detectHorizontalDragGestures`, 50dp threshold) on preview container cycles brands with wrap-around (last → first, first → last)
-- **Preview container**: rounded card with `animateColorAsState` (300ms tween) for smooth brand/theme background transitions, live component via `AndroidView` inside `Crossfade` (200ms tween) for content transitions
+- **Preview container**: rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
 - **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
 - **Routing**: `MainActivity.kt` dispatches to the correct preview screen via `when (componentId)` block
