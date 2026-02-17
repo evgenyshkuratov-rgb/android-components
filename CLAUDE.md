@@ -366,7 +366,7 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - All spacing uses `DSSpacing` tokens, all corner radii use `DSCornerRadius`
 
 ### Preview Screens
-- **Back button**: `back` icon from icons-library (never Unicode)
+- **Back button**: `back` icon (24dp) from icons-library inside a 40dp circular transparent tap target (`Box` + `CircleShape` + `.clickable`), 4dp gap to title
 - **Title**: component name with `DSTypography.title5B` + compact theme toggle (right-aligned)
 - **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sens) using `DSTypography.subhead4M`/`subhead2R`
 - **Brand swipe**: horizontal swipe (`detectHorizontalDragGestures`, 50dp threshold) on preview container cycles brands with wrap-around (last → first, first → last)
