@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -56,15 +57,24 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             val backIcon = remember { DSIcon.named(context, "back", 24f) as? BitmapDrawable }
-            backIcon?.bitmap?.let { bmp ->
-                Image(
-                    bitmap = bmp.asImageBitmap(),
-                    contentDescription = "Back",
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
-                    modifier = Modifier.size(24.dp).clickable { onBack() }
-                )
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Transparent)
+                    .clickable { onBack() },
+                contentAlignment = Alignment.Center
+            ) {
+                backIcon?.bitmap?.let { bmp ->
+                    Image(
+                        bitmap = bmp.asImageBitmap(),
+                        contentDescription = "Back",
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(4.dp))
             Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
             CompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
         }
