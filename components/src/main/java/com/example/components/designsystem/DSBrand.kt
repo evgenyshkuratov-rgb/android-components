@@ -58,6 +58,7 @@ enum class DSBrand(val displayName: String) {
         backgroundDefault = basicColor08(isDark),
         backgroundActive = accentColor(isDark),
         textPrimary = basicColor90(isDark),
+        textActive = Color.WHITE,
         closeIconTint = basicColor50(isDark)
     )
 

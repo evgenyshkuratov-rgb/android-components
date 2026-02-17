@@ -77,7 +77,7 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                         val colorScheme = brand.chipsColorScheme(isDark)
                         when (chipState) {
                             ChipsView.ChipState.DEFAULT, ChipsView.ChipState.ACTIVE -> {
-                                val icon = DSIcon.named(ctx, "user-2", 20f)
+                                val icon = DSIcon.named(ctx, "group", 24f)
                                 chip.configure(text = "Filter option", icon = icon, state = chipState, size = chipSize, colorScheme = colorScheme)
                             }
                             ChipsView.ChipState.AVATAR -> {

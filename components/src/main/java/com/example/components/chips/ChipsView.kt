@@ -1,6 +1,7 @@
 package com.example.components.chips
 
 import android.content.Context
+import android.graphics.Color
 import android.content.res.TypedArray
 import android.graphics.Bitmap
 import android.graphics.Typeface
@@ -73,7 +74,7 @@ class ChipsView @JvmOverloads constructor(
                 val bgActive = ta.getColor(R.styleable.ChipsView_chipsBackgroundActive, colorScheme.backgroundActive)
                 val textPrimary = ta.getColor(R.styleable.ChipsView_chipsTextPrimary, colorScheme.textPrimary)
                 val closeTint = ta.getColor(R.styleable.ChipsView_chipsCloseIconTint, colorScheme.closeIconTint)
-                colorScheme = ChipsColorScheme(bgDefault, bgActive, textPrimary, closeTint)
+                colorScheme = ChipsColorScheme(bgDefault, bgActive, textPrimary, Color.WHITE, closeTint)
             } finally {
                 ta.recycle()
             }
@@ -144,10 +145,10 @@ class ChipsView @JvmOverloads constructor(
             }
             ChipState.ACTIVE -> {
                 bgDrawable.setColor(colorScheme.backgroundActive)
-                textLabel.setTextColor(colorScheme.textPrimary)
+                textLabel.setTextColor(colorScheme.textActive)
                 textLabel.typeface = Typeface.create(robotoTypeface, 500, false)
                 textLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
-                iconImageView.setColorFilter(colorScheme.textPrimary)
+                iconImageView.setColorFilter(colorScheme.textActive)
             }
             ChipState.AVATAR -> {
                 bgDrawable.setColor(colorScheme.backgroundDefault)
