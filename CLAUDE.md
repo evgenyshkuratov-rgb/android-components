@@ -139,7 +139,7 @@ A filter chip component with 3 states and 2 sizes, using Android-native theming.
 | State | Description |
 |-------|-------------|
 | `DEFAULT` | Gray background, optional icon + text |
-| `ACTIVE` | Accent (brand) background, icon + text |
+| `ACTIVE` | Accent (brand) background, white icon + white text (`textActive`) |
 | `AVATAR` | Gray background, circular avatar + name + close button |
 
 **Sizes:**
@@ -157,13 +157,23 @@ A filter chip component with 3 states and 2 sizes, using Android-native theming.
 - Layout inflated from `res/layout/view_chips.xml` using `<merge>` tag
 - Capsule shape via `GradientDrawable` with cornerRadius = height/2
 
+**Color Scheme:**
+
+| Field | Token | Light | Dark |
+|-------|-------|-------|------|
+| `backgroundDefault` | basicColor08 | #14000000 | #14FFFFFF |
+| `backgroundActive` | accentColor | per-brand | per-brand |
+| `textPrimary` | basicColor90 | #E6000000 | #E6FFFFFF |
+| `textActive` | white | #FFFFFF | #FFFFFF |
+| `closeIconTint` | basicColor50 | #80000000 | #80FFFFFF |
+
 **Programmatic Usage:**
 
 ```kotlin
 val chip = ChipsView(context)
 chip.configure(
     text = "Filter option",
-    icon = DSIcon.named(context, "user-2", 20f),
+    icon = DSIcon.named(context, "group", 24f),
     state = ChipsView.ChipState.ACTIVE,
     size = ChipsView.ChipSize.MEDIUM,
     colorScheme = brand.chipsColorScheme(isDark)
