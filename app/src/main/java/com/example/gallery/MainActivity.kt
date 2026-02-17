@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
@@ -33,7 +36,14 @@ class MainActivity : ComponentActivity() {
             GalleryTheme(darkTheme = isDarkTheme) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "catalog") {
+                    NavHost(
+                        navController = navController,
+                        startDestination = "catalog",
+                        enterTransition = { fadeIn(tween(150)) },
+                        exitTransition = { fadeOut(tween(100)) },
+                        popEnterTransition = { fadeIn(tween(150)) },
+                        popExitTransition = { fadeOut(tween(100)) }
+                    ) {
                         composable("catalog") {
                             CatalogScreen(
                                 isDarkTheme = isDarkTheme,

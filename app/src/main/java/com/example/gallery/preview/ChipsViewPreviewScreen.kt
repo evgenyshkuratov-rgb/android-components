@@ -4,9 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -41,8 +47,6 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
     var selectedSize by remember { mutableIntStateOf(0) }
     var selectedBrand by remember { mutableIntStateOf(0) }
 
-    val chipState = ChipsView.ChipState.entries[selectedState]
-    val chipSize = ChipsView.ChipSize.entries[selectedSize]
     val brand = DSBrand.entries[selectedBrand]
     val isDark = isDarkTheme
 
@@ -65,31 +69,63 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
             CompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
         }
         SegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
+        val brandCount = DSBrand.entries.size
         val bgColor = Color(brand.backgroundSecond(isDark))
+        val animatedBgColor by animateColorAsState(targetValue = bgColor, animationSpec = tween(300))
         Box(
-            modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(16.dp)).background(bgColor),
-            contentAlignment = Alignment.Center
-        ) {
-            key(selectedState, selectedSize, selectedBrand, isDarkTheme) {
-                AndroidView(
-                    factory = { ctx ->
-                        val chip = ChipsView(ctx)
-                        val colorScheme = brand.chipsColorScheme(isDark)
-                        when (chipState) {
-                            ChipsView.ChipState.DEFAULT, ChipsView.ChipState.ACTIVE -> {
-                                val icon = DSIcon.named(ctx, "group", 24f)
-                                chip.configure(text = "Filter option", icon = icon, state = chipState, size = chipSize, colorScheme = colorScheme)
-                            }
-                            ChipsView.ChipState.AVATAR -> {
-                                val closeIcon = DSIcon.named(ctx, "close-s", 24f)
-                                val avatar = createPlaceholderAvatar(ctx, chipSize.avatarDp, brand, isDark)
-                                chip.configureAvatar(name = "\u0418\u043C\u044F", avatarImage = avatar, closeIcon = closeIcon, size = chipSize, colorScheme = colorScheme)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(animatedBgColor)
+                .pointerInput(Unit) {
+                    var totalDrag = 0f
+                    val threshold = 50.dp.toPx()
+                    detectHorizontalDragGestures(
+                        onDragEnd = { totalDrag = 0f },
+                        onDragCancel = { totalDrag = 0f },
+                        onHorizontalDrag = { _, dragAmount ->
+                            totalDrag += dragAmount
+                            if (totalDrag > threshold) {
+                                totalDrag = 0f
+                                selectedBrand = (selectedBrand - 1 + brandCount) % brandCount
+                            } else if (totalDrag < -threshold) {
+                                totalDrag = 0f
+                                selectedBrand = (selectedBrand + 1) % brandCount
                             }
                         }
-                        chip
-                    },
-                    modifier = Modifier.wrapContentSize()
-                )
+                    )
+                },
+            contentAlignment = Alignment.Center
+        ) {
+            Crossfade(
+                targetState = ChipsPreviewKey(selectedState, selectedSize, selectedBrand, isDarkTheme),
+                animationSpec = tween(200)
+            ) { target ->
+                val tBrand = DSBrand.entries[target.brand]
+                val tChipState = ChipsView.ChipState.entries[target.state]
+                val tChipSize = ChipsView.ChipSize.entries[target.size]
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    AndroidView(
+                        factory = { ctx ->
+                            val chip = ChipsView(ctx)
+                            val colorScheme = tBrand.chipsColorScheme(target.dark)
+                            when (tChipState) {
+                                ChipsView.ChipState.DEFAULT, ChipsView.ChipState.ACTIVE -> {
+                                    val icon = DSIcon.named(ctx, "group", 24f)
+                                    chip.configure(text = "Filter option", icon = icon, state = tChipState, size = tChipSize, colorScheme = colorScheme)
+                                }
+                                ChipsView.ChipState.AVATAR -> {
+                                    val closeIcon = DSIcon.named(ctx, "close-s", 24f)
+                                    val avatar = createPlaceholderAvatar(ctx, tChipSize.avatarDp, tBrand, target.dark)
+                                    chip.configureAvatar(name = "\u0418\u043C\u044F", avatarImage = avatar, closeIcon = closeIcon, size = tChipSize, colorScheme = colorScheme)
+                                }
+                            }
+                            chip
+                        },
+                        modifier = Modifier.wrapContentSize()
+                    )
+                }
             }
         }
         DropdownSelector(label = "State", options = listOf("Default", "Active", "Avatar"), selectedIndex = selectedState, onSelect = { selectedState = it })
@@ -156,16 +192,43 @@ private fun DropdownSelector(label: String, options: List<String>, selectedIndex
                     )
                 }
             }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.width(with(density) { triggerWidth.toDp() })
+            val menuBg = MaterialTheme.colorScheme.surface
+            val selectedBg = MaterialTheme.colorScheme.surfaceVariant
+            MaterialTheme(
+                shapes = MaterialTheme.shapes.copy(
+                    extraSmall = RoundedCornerShape(DSCornerRadius.inputField.dp)
+                )
             ) {
-                options.forEachIndexed { index, option ->
-                    DropdownMenuItem(
-                        text = { Text(text = option, style = DSTypography.body1R.toComposeTextStyle()) },
-                        onClick = { onSelect(index); expanded = false }
-                    )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier
+                        .width(with(density) { triggerWidth.toDp() })
+                        .background(menuBg)
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            val pad = 8.dp.roundToPx()
+                            layout(placeable.width, placeable.height - pad * 2) {
+                                placeable.place(0, -pad)
+                            }
+                        }
+                ) {
+                    options.forEachIndexed { index, option ->
+                        val isSelected = index == selectedIndex
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = option,
+                                    style = DSTypography.body1R.toComposeTextStyle(),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = if (isSelected) 1f else 0.5f)
+                                )
+                            },
+                            onClick = { onSelect(index); expanded = false },
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
+                                .background(if (isSelected) selectedBg else menuBg)
+                        )
+                    }
                 }
             }
         }
@@ -201,6 +264,8 @@ private fun SegmentedControl(options: List<String>, selectedIndex: Int, onSelect
         }
     }
 }
+
+private data class ChipsPreviewKey(val state: Int, val size: Int, val brand: Int, val dark: Boolean)
 
 private fun createPlaceholderAvatar(context: android.content.Context, sizeDp: Int, brand: DSBrand, isDark: Boolean): Bitmap {
     val density = context.resources.displayMetrics.density

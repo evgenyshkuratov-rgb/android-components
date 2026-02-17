@@ -1,9 +1,13 @@
 package com.example.gallery.preview
 
 import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -36,11 +41,8 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
     var showText by remember { mutableIntStateOf(0) }
     var isEnabled by remember { mutableIntStateOf(0) }
 
-    val shape = CheckboxView.Shape.entries[selectedShape]
     val brand = DSBrand.entries[selectedBrand]
     val isDark = isDarkTheme
-    val textVisible = showText == 0
-    val enabled = isEnabled == 0
 
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -63,31 +65,64 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
 
         CheckboxSegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
 
+        val brandCount = DSBrand.entries.size
         val bgColor = Color(brand.backgroundSecond(isDark))
+        val animatedBgColor by animateColorAsState(targetValue = bgColor, animationSpec = tween(300))
         Box(
-            modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(16.dp)).background(bgColor),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(animatedBgColor)
+                .pointerInput(Unit) {
+                    var totalDrag = 0f
+                    val threshold = 50.dp.toPx()
+                    detectHorizontalDragGestures(
+                        onDragEnd = { totalDrag = 0f },
+                        onDragCancel = { totalDrag = 0f },
+                        onHorizontalDrag = { _, dragAmount ->
+                            totalDrag += dragAmount
+                            if (totalDrag > threshold) {
+                                totalDrag = 0f
+                                selectedBrand = (selectedBrand - 1 + brandCount) % brandCount
+                            } else if (totalDrag < -threshold) {
+                                totalDrag = 0f
+                                selectedBrand = (selectedBrand + 1) % brandCount
+                            }
+                        }
+                    )
+                },
             contentAlignment = Alignment.Center
         ) {
-            key(selectedShape, selectedBrand, isDarkTheme, isChecked, showText, isEnabled) {
-                AndroidView(
-                    factory = { ctx ->
-                        val checkbox = CheckboxView(ctx)
-                        val colorScheme = brand.checkboxColorScheme(isDark)
-                        checkbox.configure(
-                            text = "Label",
-                            shape = shape,
-                            isChecked = isChecked,
-                            isEnabled = enabled,
-                            showText = textVisible,
-                            colorScheme = colorScheme
-                        )
-                        checkbox.onCheckedChange = { checked ->
-                            isChecked = checked
-                        }
-                        checkbox
-                    },
-                    modifier = Modifier.wrapContentSize()
-                )
+            Crossfade(
+                targetState = CheckboxPreviewKey(selectedShape, selectedBrand, isDarkTheme, isChecked, showText, isEnabled),
+                animationSpec = tween(200)
+            ) { target ->
+                val tBrand = DSBrand.entries[target.brand]
+                val tShape = CheckboxView.Shape.entries[target.shape]
+                val tTextVisible = target.showText == 0
+                val tEnabled = target.enabled == 0
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    AndroidView(
+                        factory = { ctx ->
+                            val checkbox = CheckboxView(ctx)
+                            val colorScheme = tBrand.checkboxColorScheme(target.dark)
+                            checkbox.configure(
+                                text = "Label",
+                                shape = tShape,
+                                isChecked = target.checked,
+                                isEnabled = tEnabled,
+                                showText = tTextVisible,
+                                colorScheme = colorScheme
+                            )
+                            checkbox.onCheckedChange = { checked ->
+                                isChecked = checked
+                            }
+                            checkbox
+                        },
+                        modifier = Modifier.wrapContentSize()
+                    )
+                }
             }
         }
 
@@ -102,6 +137,8 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
         }
     }
 }
+
+private data class CheckboxPreviewKey(val shape: Int, val brand: Int, val dark: Boolean, val checked: Boolean, val showText: Int, val enabled: Int)
 
 @Composable
 private fun CheckboxCompactThemeToggle(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
