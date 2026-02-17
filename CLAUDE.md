@@ -239,11 +239,10 @@ checkbox.onCheckedChange = { checked -> /* handle change */ }
 
 **Preview Controls:**
 
-- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens)
+- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
 - Shape: Square / Circle
 - Show Text: On / Off
 - Enabled: Yes / No
-- Theme: Light / Dark
 - Interactive: tapping the checkbox toggles it live, synced with Compose state
 
 ## Brand Theming
@@ -349,27 +348,37 @@ cd mcp-server && npm install
 
 A Jetpack Compose application that showcases all components with interactive controls.
 
+### Global Theme State
+
+Theme (Light/Dark) is managed as a single `isDarkTheme` state in `MainActivity` and passed to all screens via parameters. There is no per-screen local theme state. The compact Light/Dark segmented toggle is visible on every screen:
+- **Catalog**: in the header row, right of the Frisbee logo
+- **Preview screens**: in the header row, right of the component title
+
+Switching theme on any screen applies globally (Compose theme, preview component colors, status bar icons via `WindowCompat.getInsetsController()`).
+
 ### Catalog Screen
 - **Header row**: Frisbee logo (44dp, colored via `DSIcon.coloredNamed`) + Light/Dark segmented control
-- **Theme toggle**: switches entire app theme via `MainActivity` state + `WindowCompat.getInsetsController()` for status bar icons
 - Title "Components Library" with `DSTypography.title1B`
 - Status line: dynamic counts with relative timestamps from `design-system-counts.json` (auto-generated at build time by `generateDesignSystemCounts` Gradle task)
 - Search bar with `search` icon from icons-library, `DSTypography.body1R`
 - Component cards with `DSTypography.subtitle1M` name, `DSTypography.subhead2R` description, `arrow-right-s` chevron
-- Press animation (scale 0.95)
+- **Card press animation**: `detectTapGestures` for reliable press detection (fires on every tap), `animateFloatAsState` with `spring(dampingRatio=0.6f, stiffness=800f)` for scale (0.97f) and alpha (0.7f) -- smooth bounce-back on release
 - All spacing uses `DSSpacing` tokens, all corner radii use `DSCornerRadius`
 
 ### Preview Screens
 - **Back button**: `back` icon from icons-library (never Unicode)
-- **Title**: component name with `DSTypography.title5B`
+- **Title**: component name with `DSTypography.title5B` + compact theme toggle (right-aligned)
 - **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sens) using `DSTypography.subhead4M`/`subhead2R`
-- **Preview container**: rounded card with brand-colored background, live component via `AndroidView`
+- **Brand swipe**: horizontal swipe (`detectHorizontalDragGestures`, 50dp threshold) on preview container cycles brands with wrap-around (last → first, first → last)
+- **Preview container**: rounded card with `animateColorAsState` (300ms tween) for smooth brand/theme background transitions, live component via `AndroidView` inside `Crossfade` (200ms tween) for content transitions
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
+- **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
 - **Routing**: `MainActivity.kt` dispatches to the correct preview screen via `when (componentId)` block
 
 ### Navigation
 - Single-activity architecture with Compose `NavHost`
 - Routes: `catalog` and `preview/{componentId}`
+- **Transitions**: `fadeIn(tween(150))` / `fadeOut(tween(100))` for both enter/exit and pop enter/exit
 
 ## Build-Time Sync (icons-library → status line)
 
