@@ -48,10 +48,14 @@ class MainActivity : ComponentActivity() {
                             when (componentId) {
                                 "CheckboxView" -> CheckboxViewPreviewScreen(
                                     componentId = componentId,
+                                    isDarkTheme = isDarkTheme,
+                                    onThemeChanged = { isDarkTheme = it },
                                     onBack = { navController.popBackStack() }
                                 )
                                 else -> ChipsViewPreviewScreen(
                                     componentId = componentId,
+                                    isDarkTheme = isDarkTheme,
+                                    onThemeChanged = { isDarkTheme = it },
                                     onBack = { navController.popBackStack() }
                                 )
                             }

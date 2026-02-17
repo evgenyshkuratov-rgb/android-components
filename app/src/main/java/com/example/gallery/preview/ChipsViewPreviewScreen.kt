@@ -35,17 +35,16 @@ import com.example.components.designsystem.DSTypography
 import com.example.gallery.theme.toComposeTextStyle
 
 @Composable
-fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
+fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     var selectedState by remember { mutableIntStateOf(0) }
     var selectedSize by remember { mutableIntStateOf(0) }
     var selectedBrand by remember { mutableIntStateOf(0) }
-    var selectedTheme by remember { mutableIntStateOf(0) }
 
     val chipState = ChipsView.ChipState.entries[selectedState]
     val chipSize = ChipsView.ChipSize.entries[selectedSize]
     val brand = DSBrand.entries[selectedBrand]
-    val isDark = selectedTheme == 1
+    val isDark = isDarkTheme
 
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -62,7 +61,8 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
+            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+            CompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
         }
         SegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
         val bgColor = Color(brand.backgroundSecond(isDark))
@@ -70,7 +70,7 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(16.dp)).background(bgColor),
             contentAlignment = Alignment.Center
         ) {
-            key(selectedState, selectedSize, selectedBrand, selectedTheme) {
+            key(selectedState, selectedSize, selectedBrand, isDarkTheme) {
                 AndroidView(
                     factory = { ctx ->
                         val chip = ChipsView(ctx)
@@ -94,7 +94,35 @@ fun ChipsViewPreviewScreen(componentId: String, onBack: () -> Unit) {
         }
         DropdownSelector(label = "State", options = listOf("Default", "Active", "Avatar"), selectedIndex = selectedState, onSelect = { selectedState = it })
         DropdownSelector(label = "Size", options = listOf("32dp", "40dp"), selectedIndex = selectedSize, onSelect = { selectedSize = it })
-        ControlRow(label = "Theme") { SegmentedControl(options = listOf("Light", "Dark"), selectedIndex = selectedTheme, onSelect = { selectedTheme = it }) }
+    }
+}
+
+@Composable
+private fun CompactThemeToggle(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        listOf(false to "Light", true to "Dark").forEach { (dark, label) ->
+            val isSelected = isDarkTheme == dark
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                    .clickable { onThemeChanged(dark) }
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label,
+                    style = if (isSelected) DSTypography.subhead4M.toComposeTextStyle() else DSTypography.subhead2R.toComposeTextStyle(),
+                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
+        }
     }
 }
 

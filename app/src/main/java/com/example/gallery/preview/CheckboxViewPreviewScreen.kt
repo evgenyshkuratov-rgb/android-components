@@ -28,18 +28,17 @@ import com.example.components.designsystem.DSTypography
 import com.example.gallery.theme.toComposeTextStyle
 
 @Composable
-fun CheckboxViewPreviewScreen(componentId: String, onBack: () -> Unit) {
+fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     var selectedShape by remember { mutableIntStateOf(0) }
     var selectedBrand by remember { mutableIntStateOf(0) }
-    var selectedTheme by remember { mutableIntStateOf(0) }
     var isChecked by remember { mutableStateOf(false) }
     var showText by remember { mutableIntStateOf(0) }
     var isEnabled by remember { mutableIntStateOf(0) }
 
     val shape = CheckboxView.Shape.entries[selectedShape]
     val brand = DSBrand.entries[selectedBrand]
-    val isDark = selectedTheme == 1
+    val isDark = isDarkTheme
     val textVisible = showText == 0
     val enabled = isEnabled == 0
 
@@ -58,7 +57,8 @@ fun CheckboxViewPreviewScreen(componentId: String, onBack: () -> Unit) {
                 )
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
+            Text(text = componentId.removeSuffix("View"), style = DSTypography.title5B.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
+            CheckboxCompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
         }
 
         CheckboxSegmentedControl(options = DSBrand.entries.map { it.displayName }, selectedIndex = selectedBrand, onSelect = { selectedBrand = it })
@@ -68,7 +68,7 @@ fun CheckboxViewPreviewScreen(componentId: String, onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(160.dp).clip(RoundedCornerShape(16.dp)).background(bgColor),
             contentAlignment = Alignment.Center
         ) {
-            key(selectedShape, selectedBrand, selectedTheme, isChecked, showText, isEnabled) {
+            key(selectedShape, selectedBrand, isDarkTheme, isChecked, showText, isEnabled) {
                 AndroidView(
                     factory = { ctx ->
                         val checkbox = CheckboxView(ctx)
@@ -100,8 +100,34 @@ fun CheckboxViewPreviewScreen(componentId: String, onBack: () -> Unit) {
         CheckboxControlRow(label = "Enabled") {
             CheckboxSegmentedControl(options = listOf("Yes", "No"), selectedIndex = isEnabled, onSelect = { isEnabled = it })
         }
-        CheckboxControlRow(label = "Theme") {
-            CheckboxSegmentedControl(options = listOf("Light", "Dark"), selectedIndex = selectedTheme, onSelect = { selectedTheme = it })
+    }
+}
+
+@Composable
+private fun CheckboxCompactThemeToggle(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        listOf(false to "Light", true to "Dark").forEach { (dark, label) ->
+            val isSelected = isDarkTheme == dark
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                    .clickable { onThemeChanged(dark) }
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label,
+                    style = if (isSelected) DSTypography.subhead4M.toComposeTextStyle() else DSTypography.subhead2R.toComposeTextStyle(),
+                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
         }
     }
 }
