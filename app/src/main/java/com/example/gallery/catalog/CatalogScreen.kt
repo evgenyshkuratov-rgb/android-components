@@ -43,9 +43,9 @@ import java.util.TimeZone
 private data class ComponentEntry(val id: String, val name: String, val description: String)
 
 private val components = listOf(
-    ComponentEntry("ChipsView", "Chips", "Filter chips with Default, Active, and Avatar states"),
+    ComponentEntry("AttachedMediaView", "Attached Media", "File and media attachments with error states and file type icons"),
     ComponentEntry("CheckboxView", "Checkbox", "Checkbox with square and circle shapes, label text, and enabled/disabled states"),
-    ComponentEntry("AttachedMediaView", "Attached Media", "File and media attachments with error states and file type icons")
+    ComponentEntry("ChipsView", "Chips", "Filter chips with Default, Active, and Avatar states")
 )
 
 @Composable

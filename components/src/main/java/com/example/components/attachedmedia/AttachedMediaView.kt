@@ -197,15 +197,11 @@ class AttachedMediaView @JvmOverloads constructor(
         previewBg.cornerRadius = dpToPx(8).toFloat()
 
         when {
-            isError -> {
-                // Error state: no preview bg distinction
-                previewBg.setColor(Color.parseColor("#33FFFFFF"))
-                filePreviewContainer.background = previewBg
-                setupFileIcon()
-            }
             currentFileType == FileType.IMAGE || currentFileType == FileType.VIDEO -> {
-                // Thumbnail preview
-                previewBg.cornerRadius = dpToPx(8).toFloat()
+                // Thumbnail preview — shown in both normal and error states
+                if (isError) {
+                    previewBg.setColor(Color.parseColor("#33FFFFFF"))
+                }
                 filePreviewContainer.background = previewBg
                 filePreviewImage.visibility = VISIBLE
                 filePreviewIcon.visibility = GONE
@@ -218,6 +214,12 @@ class AttachedMediaView @JvmOverloads constructor(
                     fileVideoOverlay.visibility = GONE
                     fileVideoPlayIcon.visibility = GONE
                 }
+            }
+            isError -> {
+                // Error state for FILE/AUDIO — icon preview
+                previewBg.setColor(Color.parseColor("#33FFFFFF"))
+                filePreviewContainer.background = previewBg
+                setupFileIcon()
             }
             else -> {
                 previewBg.setColor(colorScheme.filePreviewBg)
