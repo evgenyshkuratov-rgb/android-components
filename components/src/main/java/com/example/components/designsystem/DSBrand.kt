@@ -75,7 +75,7 @@ enum class DSBrand(val displayName: String) {
         badgeBg = Color.parseColor("#CC000000"),
         badgeTextColor = Color.WHITE,
         dangerColor = dangerDefault(),
-        videoPlayBg = basicColor60(isDark),
+        videoPlayBg = Color.parseColor("#80000000"),
         videoPlayIconTint = Color.parseColor("#B3FFFFFF")
     )
 

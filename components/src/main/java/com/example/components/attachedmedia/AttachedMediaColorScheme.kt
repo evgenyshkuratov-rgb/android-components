@@ -38,7 +38,7 @@ data class AttachedMediaColorScheme(
             badgeBg = Color.parseColor("#CC000000"),
             badgeTextColor = Color.WHITE,
             dangerColor = Color.parseColor("#E06141"),
-            videoPlayBg = Color.parseColor("#99000000"),
+            videoPlayBg = Color.parseColor("#80000000"),
             videoPlayIconTint = Color.parseColor("#B3FFFFFF")
         )
     }

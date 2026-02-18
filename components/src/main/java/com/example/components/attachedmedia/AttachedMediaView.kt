@@ -267,7 +267,7 @@ class AttachedMediaView @JvmOverloads constructor(
 
         val icon = DSIcon.named(context, iconName, 24f)
         filePreviewIcon.setImageDrawable(icon)
-        filePreviewIcon.setColorFilter(if (isError) colorScheme.fileIconErrorTint else colorScheme.fileIconTint)
+        filePreviewIcon.setColorFilter(if (isError) colorScheme.fileIconErrorTint else colorScheme.fileIconTint, android.graphics.PorterDuff.Mode.SRC_IN)
     }
 
     private fun setupVideoOverlay() {
@@ -298,7 +298,7 @@ class AttachedMediaView @JvmOverloads constructor(
             gravity = android.view.Gravity.CENTER
         }
         fileVideoPlayIcon.setImageDrawable(playIcon)
-        fileVideoPlayIcon.setColorFilter(colorScheme.videoPlayIconTint)
+        fileVideoPlayIcon.setColorFilter(colorScheme.videoPlayIconTint, android.graphics.PorterDuff.Mode.SRC_IN)
     }
 
     private fun setupMediaMode() {
@@ -356,7 +356,7 @@ class AttachedMediaView @JvmOverloads constructor(
 
             val playIcon = DSIcon.named(context, "play", 16f)
             badgePlayIcon.setImageDrawable(playIcon)
-            badgePlayIcon.setColorFilter(colorScheme.badgeTextColor)
+            badgePlayIcon.setColorFilter(colorScheme.badgeTextColor, android.graphics.PorterDuff.Mode.SRC_IN)
 
             DSTypography.subcaptionR.apply(badgeDurationText)
             badgeDurationText.setTextColor(colorScheme.badgeTextColor)
@@ -371,7 +371,7 @@ class AttachedMediaView @JvmOverloads constructor(
 
         val closeIcon = DSIcon.named(context, "close-s", 24f)
         closeButton.setImageDrawable(closeIcon)
-        closeButton.setColorFilter(colorScheme.closeIconTint)
+        closeButton.setColorFilter(colorScheme.closeIconTint, android.graphics.PorterDuff.Mode.SRC_IN)
     }
 
     private fun dpToPx(dp: Int): Int = (dp * density).toInt()
