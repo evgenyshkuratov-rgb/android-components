@@ -507,13 +507,13 @@ Figma ──(every 6h Mon-Thu)──> GitHub icons-library ──(git pull on bu
    - Components timestamp from **this repo** (`Sources/`, `specs/`)
 6. Writes `design-system-counts.json` into `build/generated/assets/` (not source tree)
 
-**Icons-library local clone path:** `~/Clode code projects/Icons library/` (override via `ICONS_REPO_PATH` env var in the iOS counterpart; Android uses the same default path).
+**Icons-library local clone path:** `../icons-library` (sibling directory relative to the project root). The Gradle task resolves this via `File(rootProject.projectDir.parentFile, "icons-library")`.
 
 **No static file** — `app/src/main/assets/design-system-counts.json` does not exist in the source tree. The file is generated fresh on every build.
 
 ## Build Instructions
 
-**Prerequisites:** Android SDK (compileSdk 34, minSdk 26), JDK 17, Node.js (for MCP server), local clone of icons-library at `~/Clode code projects/Icons library/`.
+**Prerequisites:** Android SDK (compileSdk 34, minSdk 26), JDK 17, Node.js (for MCP server), local clone of icons-library as a sibling directory (`../icons-library`).
 
 ```bash
 # Build the full project (auto-syncs design system counts)
