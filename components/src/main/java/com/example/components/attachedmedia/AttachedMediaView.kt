@@ -241,7 +241,7 @@ class AttachedMediaView @JvmOverloads constructor(
         }
 
         // Typography
-        DSTypography.bubbleM13.apply(fileNameText)
+        DSTypography.bubbleR15.apply(fileNameText)
         DSTypography.caption2R.apply(fileSizeText)
 
         // Re-apply text colors after typography (apply() doesn't set color)
