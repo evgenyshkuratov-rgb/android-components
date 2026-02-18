@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.components.designsystem.DSCornerRadius
 import com.example.components.designsystem.DSIcon
@@ -236,6 +239,7 @@ private fun shortRelativeTime(isoString: String): String? {
 @Composable
 private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val searchIcon = remember { DSIcon.named(context, "search", 20f) as? BitmapDrawable }
     val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
 
@@ -243,6 +247,8 @@ private fun SearchBar(query: String, onQueryChange: (String) -> Unit, modifier: 
         value = query,
         onValueChange = onQueryChange,
         singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         textStyle = DSTypography.body1R.toComposeTextStyle().copy(
             color = MaterialTheme.colorScheme.onSurface
         ),
