@@ -460,7 +460,7 @@ A Jetpack Compose application that showcases all components with interactive con
 
 ### Global Theme State
 
-Theme (Light/Dark) is managed as a single `isDarkTheme` state in `MainActivity` and passed to all screens via parameters. There is no per-screen local theme state. The compact Light/Dark segmented toggle is visible on every screen:
+Theme (Light/Dark) is managed as a single `isDarkTheme` state in `MainActivity` via `rememberSaveable` (survives configuration changes like screen rotation) and passed to all screens via parameters. There is no per-screen local theme state. The compact Light/Dark segmented toggle is visible on every screen:
 - **Catalog**: in the header row, right of the Frisbee logo
 - **Preview screens**: in the header row, right of the component title
 
