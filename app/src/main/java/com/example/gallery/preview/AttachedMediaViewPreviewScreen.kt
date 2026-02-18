@@ -341,7 +341,8 @@ private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Uni
                 Text(
                     text = suffix,
                     style = DSTypography.subhead2R.toComposeTextStyle(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    modifier = Modifier.padding(end = 4.dp)
                 )
                 if (value.isNotEmpty()) {
                     clearIcon?.bitmap?.let { bmp ->
