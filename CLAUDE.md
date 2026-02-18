@@ -484,7 +484,38 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Preview container**: rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
 - **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
+- **Bottom padding**: all preview screens use 24dp bottom padding (`padding(bottom = 24.dp)`) for safe area spacing below the last control
 - **Routing**: `MainActivity.kt` dispatches to the correct preview screen via `when (componentId)` block
+
+### Keyboard Handling
+
+The activity uses `android:windowSoftInputMode="adjustNothing"` in `AndroidManifest.xml` to prevent the system from panning or resizing the window when the keyboard appears. All keyboard handling is managed exclusively by Compose:
+
+- **Why `adjustNothing`**: the default `adjustPan` shifts the entire window up, which conflicts with Compose `imePadding()` and causes a double-offset effect (system pan + Compose padding). Setting `adjustNothing` disables the system behavior so Compose has full control.
+- **`imePadding()`**: placed before `verticalScroll()` in the modifier chain to shrink the scroll viewport by the keyboard height. This ensures the scrollable area ends right above the keyboard.
+- **Auto-scroll with `snapshotFlow`**: on screens with text input (e.g., AttachedMedia), a `LaunchedEffect` observes `WindowInsets.isImeVisible`. When the keyboard opens, `snapshotFlow { scrollState.maxValue }.collect { scrollState.scrollTo(it) }` continuously scrolls to the bottom as the viewport shrinks frame-by-frame, synchronized with the keyboard animation. This ensures exactly 24dp gap (from `bottom` padding) between the last control and the keyboard.
+- **Pattern for new screens with text input**:
+  ```kotlin
+  val scrollState = rememberScrollState()
+  val imeVisible = WindowInsets.isImeVisible  // requires @OptIn(ExperimentalLayoutApi::class)
+
+  LaunchedEffect(imeVisible) {
+      if (imeVisible) {
+          snapshotFlow { scrollState.maxValue }
+              .collect { scrollState.scrollTo(it) }
+      }
+  }
+
+  Column(
+      modifier = Modifier
+          .fillMaxSize()
+          .statusBarsPadding()
+          .imePadding()
+          .verticalScroll(scrollState)
+          .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
+      ...
+  )
+  ```
 
 ### Navigation
 - Single-activity architecture with Compose `NavHost`
