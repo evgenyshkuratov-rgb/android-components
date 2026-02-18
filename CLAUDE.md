@@ -278,7 +278,7 @@ A component for displaying file or media attachments with two display modes, nor
 
 | Mode | Normal | Error |
 |------|--------|-------|
-| FILE | `backgroundSecond` bg, `basicColor55` icon, `basicColor90` name, `basicColor50` size | `dangerDefault` (#E06141) bg, `white80` icon, white name, `white70` error text |
+| FILE | `backgroundSecond` bg, `basicColor55` icon, `basicColor90` name, `basicColor50` size | `dangerDefault` (#E06141) bg, `white80` icon, white name, `white70` error text; IMAGE/VIDEO retain thumbnail preview |
 | MEDIA | Thumbnail image with optional badge | Thumbnail + danger gradient overlay + white error text |
 
 **Architecture:**
@@ -319,7 +319,7 @@ A component for displaying file or media attachments with two display modes, nor
 
 | Element | Style | Spec |
 |---------|-------|------|
-| File name | `bubbleM13` | 13sp Medium, line-height 16sp |
+| File name | `bubbleR15` | 15sp Regular, line-height 20sp |
 | File size / error text | `caption2R` | 12sp Regular, line-height 14sp |
 | Media error text | `caption2R` | 12sp Regular, line-height 14sp |
 | Badge duration | `subcaptionR` | 11sp Regular, line-height 13sp |
@@ -348,7 +348,7 @@ media.onClose = { /* handle close */ }
 - Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
 - Type: File / Media
 - Error: No / Yes
-- File Type: File / Audio / Image / Video (visible only when Type=File)
+- File Type: File / Audio / Image / Video (visible only when Type=File); Image / Video (visible only when Type=Media, controls badge visibility)
 - Preview container uses `backgroundBase` (not `backgroundSecond`) so FILE cards are visible
 - Sample image loaded from `assets/images/sample.jpg` for Media and Image/Video file previews
 
