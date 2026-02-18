@@ -493,6 +493,7 @@ The activity uses `android:windowSoftInputMode="adjustNothing"` in `AndroidManif
 
 - **Why `adjustNothing`**: the default `adjustPan` shifts the entire window up, which conflicts with Compose `imePadding()` and causes a double-offset effect (system pan + Compose padding). Setting `adjustNothing` disables the system behavior so Compose has full control.
 - **`imePadding()`**: placed before `verticalScroll()` in the modifier chain to shrink the scroll viewport by the keyboard height. This ensures the scrollable area ends right above the keyboard.
+- **Done action clears focus**: every `BasicTextField` must include `keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)` and `keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })` so that pressing Done on the keyboard both hides the keyboard and removes focus from the input.
 - **Auto-scroll with `snapshotFlow`**: on screens with text input (e.g., AttachedMedia), a `LaunchedEffect` observes `WindowInsets.isImeVisible`. When the keyboard opens, `snapshotFlow { scrollState.maxValue }.collect { scrollState.scrollTo(it) }` continuously scrolls to the bottom as the viewport shrinks frame-by-frame, synchronized with the keyboard animation. This ensures exactly 24dp gap (from `bottom` padding) between the last control and the keyboard.
 - **Pattern for new screens with text input**:
   ```kotlin
