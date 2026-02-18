@@ -41,4 +41,40 @@
         <attr name="checkboxTextEnabled" format="color"/>
         <attr name="checkboxTextDisabled" format="color"/>
     </declare-styleable>
+
+    <declare-styleable name="AttachedMediaView">
+        <attr name="attachedMediaType" format="enum">
+            <enum name="file" value="0"/>
+            <enum name="media" value="1"/>
+        </attr>
+        <attr name="attachedFileType" format="enum">
+            <enum name="file" value="0"/>
+            <enum name="audio" value="1"/>
+            <enum name="image" value="2"/>
+            <enum name="video" value="3"/>
+        </attr>
+        <attr name="attachedFileName" format="string"/>
+        <attr name="attachedFileSize" format="string"/>
+        <attr name="attachedErrorText" format="string"/>
+        <attr name="attachedIsError" format="boolean"/>
+        <attr name="attachedMediaDuration" format="string"/>
+        <attr name="attachedShowBadge" format="boolean"/>
+        <attr name="attachedBackgroundFile" format="color"/>
+        <attr name="attachedBackgroundFileError" format="color"/>
+        <attr name="attachedFilePreviewBg" format="color"/>
+        <attr name="attachedFileIconTint" format="color"/>
+        <attr name="attachedFileIconErrorTint" format="color"/>
+        <attr name="attachedFileNameColor" format="color"/>
+        <attr name="attachedFileSizeColor" format="color"/>
+        <attr name="attachedFileNameErrorColor" format="color"/>
+        <attr name="attachedFileSubErrorColor" format="color"/>
+        <attr name="attachedMediaErrorTextColor" format="color"/>
+        <attr name="attachedCloseButtonBg" format="color"/>
+        <attr name="attachedCloseIconTint" format="color"/>
+        <attr name="attachedBadgeBg" format="color"/>
+        <attr name="attachedBadgeTextColor" format="color"/>
+        <attr name="attachedDangerColor" format="color"/>
+        <attr name="attachedVideoPlayBg" format="color"/>
+        <attr name="attachedVideoPlayIconTint" format="color"/>
+    </declare-styleable>
 </resources>

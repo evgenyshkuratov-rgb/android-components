@@ -9,6 +9,10 @@
     {
       "name": "CheckboxView",
       "description": "Checkbox with square and circle shapes, optional label text, and enabled/disabled states"
+    },
+    {
+      "name": "AttachedMediaView",
+      "description": "File and media attachments with error states and file type previews"
     }
   ]
 }

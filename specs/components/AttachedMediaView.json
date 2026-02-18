@@ -1,0 +1,19 @@
+{
+  "name": "AttachedMediaView",
+  "description": "A component for displaying file or media attachments. Supports two modes: File card (216x56dp with icon/thumbnail preview) and Media thumbnail (80x80dp). File cards show 4 file types (File, Audio, Image, Video) with appropriate icons or image previews. Both modes support normal and error states, a close button, and brand-aware theming via AttachedMediaColorScheme.",
+  "import": "com.example.components.attachedmedia.AttachedMediaView",
+  "properties": [
+    { "name": "attachedMediaType", "type": "MediaType", "description": "Display mode: FILE (card with icon/thumbnail) or MEDIA (square thumbnail)" },
+    { "name": "attachedFileType", "type": "FileType", "description": "File type: FILE, AUDIO, IMAGE, or VIDEO. Controls preview icon/thumbnail" },
+    { "name": "attachedFileName", "type": "String", "description": "File name displayed in the card" },
+    { "name": "attachedFileSize", "type": "String", "description": "File size text shown below the file name" },
+    { "name": "attachedErrorText", "type": "String", "description": "Error description shown in error state" },
+    { "name": "attachedIsError", "type": "Boolean", "description": "Whether to display in error state" },
+    { "name": "attachedMediaDuration", "type": "String", "description": "Duration text shown in the media badge" },
+    { "name": "attachedShowBadge", "type": "Boolean", "description": "Whether to show the duration badge in media mode" },
+    { "name": "onClose", "type": "(() -> Unit)?", "description": "Callback fired when the close button is tapped" }
+  ],
+  "xmlUsage": "<com.example.components.attachedmedia.AttachedMediaView\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    app:attachedMediaType=\"file\"\n    app:attachedFileType=\"audio\"\n    app:attachedFileName=\"recording.mp3\"\n    app:attachedFileSize=\"2.4 MB\"\n    app:attachedIsError=\"false\"/>",
+  "kotlinUsage": "val media = AttachedMediaView(context)\nmedia.configure(\n    type = AttachedMediaView.MediaType.FILE,\n    fileType = AttachedMediaView.FileType.AUDIO,\n    fileName = \"recording.mp3\",\n    fileSize = \"2.4 MB\",\n    errorText = \"Upload error\",\n    isError = false,\n    thumbnailImage = null,\n    mediaDuration = \"1:23\",\n    showBadge = false,\n    colorScheme = brand.attachedMediaColorScheme(isDark)\n)\nmedia.onClose = { /* handle close */ }",
+  "tags": ["attachment", "media", "file", "upload", "thumbnail", "audio", "video", "image"]
+}

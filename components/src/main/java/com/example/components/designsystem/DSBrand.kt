@@ -3,6 +3,7 @@ package com.example.components.designsystem
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
+import com.example.components.attachedmedia.AttachedMediaColorScheme
 import com.example.components.checkbox.CheckboxColorScheme
 import com.example.components.chips.ChipsColorScheme
 
@@ -43,7 +44,9 @@ enum class DSBrand(val displayName: String) {
     fun basicColor90(isDark: Boolean): Int = Color.parseColor(if (isDark) "#E6FFFFFF" else "#E6000000")
     fun basicColor50(isDark: Boolean): Int = Color.parseColor(if (isDark) "#80FFFFFF" else "#80000000")
     fun basicColor55(isDark: Boolean): Int = Color.parseColor(if (isDark) "#8CFFFFFF" else "#8C000000")
+    fun basicColor15(isDark: Boolean): Int = Color.parseColor(if (isDark) "#26FFFFFF" else "#26000000")
     fun basicColor25(isDark: Boolean): Int = Color.parseColor(if (isDark) "#40FFFFFF" else "#40000000")
+    fun basicColor60(isDark: Boolean): Int = Color.parseColor(if (isDark) "#99FFFFFF" else "#99000000")
 
     fun checkboxColorScheme(isDark: Boolean) = CheckboxColorScheme(
         borderEnabled = basicColor55(isDark),
@@ -52,6 +55,28 @@ enum class DSBrand(val displayName: String) {
         checkmarkColor = Color.WHITE,
         textEnabled = basicColor50(isDark),
         textDisabled = basicColor25(isDark)
+    )
+
+    fun dangerDefault(): Int = Color.parseColor("#E06141")
+
+    fun attachedMediaColorScheme(isDark: Boolean) = AttachedMediaColorScheme(
+        backgroundFile = backgroundSecond(isDark),
+        backgroundFileError = dangerDefault(),
+        filePreviewBg = basicColor15(isDark),
+        fileIconTint = basicColor55(isDark),
+        fileIconErrorTint = Color.parseColor("#CCFFFFFF"),
+        fileNameColor = basicColor90(isDark),
+        fileSizeColor = basicColor50(isDark),
+        fileNameErrorColor = Color.WHITE,
+        fileSubErrorColor = Color.parseColor("#B3FFFFFF"),
+        mediaErrorTextColor = Color.WHITE,
+        closeButtonBg = Color.parseColor("#CC000000"),
+        closeIconTint = Color.WHITE,
+        badgeBg = Color.parseColor("#CC000000"),
+        badgeTextColor = Color.WHITE,
+        dangerColor = dangerDefault(),
+        videoPlayBg = basicColor60(isDark),
+        videoPlayIconTint = Color.parseColor("#B3FFFFFF")
     )
 
     fun chipsColorScheme(isDark: Boolean) = ChipsColorScheme(
