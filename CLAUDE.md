@@ -290,6 +290,7 @@ A component for displaying file or media attachments with two display modes, nor
 - Theming through `AttachedMediaColorScheme` data class -- colors flow from `DSBrand.attachedMediaColorScheme(isDark)`
 - Layout inflated from `res/layout/view_attached_media.xml` using `<merge>` tag
 - **Icon tinting**: uses `PorterDuff.Mode.SRC_IN` (not default `SRC_ATOP`) to correctly apply alpha from semi-transparent colors like `basicColor55`
+- File container: 32dp `paddingEnd` to prevent file name text from overlapping with close button
 - File preview: 40x40dp container with 8dp corner radius
 - Video play overlay: 24dp circle, `Black50` (#80000000) background, 16dp `play` icon with `white70` (#B3FFFFFF)
 - Close button: 24dp circle at top-right 4dp offset, `Black80` (#CC000000) background, `close-s` icon
@@ -349,6 +350,7 @@ media.onClose = { /* handle close */ }
 - Type: File / Media
 - Error: No / Yes
 - File Type: File / Audio / Image / Video (visible only when Type=File); Image / Video (visible only when Type=Media, controls badge visibility)
+- File Name: text input (visible only when Type=File) -- editable file name with auto extension suffix (`.pdf`/`.mp3`/`.jpg`/`.mp4`), placeholder matches default name per file type, `clear-field` clear button (32dp tap target) appears when text is entered; tapping outside the input dismisses keyboard via `LocalFocusManager`
 - Preview container uses `backgroundBase` (not `backgroundSecond`) so FILE cards are visible
 - Sample image loaded from `assets/images/sample.jpg` for Media and Image/Video file previews
 
@@ -462,13 +464,14 @@ Theme (Light/Dark) is managed as a single `isDarkTheme` state in `MainActivity` 
 - **Catalog**: in the header row, right of the Frisbee logo
 - **Preview screens**: in the header row, right of the component title
 
-Switching theme on any screen applies globally (Compose theme, preview component colors, status bar icons via `WindowCompat.getInsetsController()`).
+Switching theme on any screen applies globally (Compose theme, preview component colors, system bars). Theme switching uses `SideEffect` + `enableEdgeToEdge()` with transparent `SystemBarStyle` for instant status bar and navigation bar color changes (no system animation delay).
 
 ### Catalog Screen
 - **Header row**: Frisbee logo (44dp, colored via `DSIcon.coloredNamed`) + Light/Dark segmented control
 - Title "Components Library" with `DSTypography.title1B`
 - Status line: dynamic counts with relative timestamps from `design-system-counts.json` (auto-generated at build time by `generateDesignSystemCounts` Gradle task)
 - Search bar with `search` icon from icons-library, `DSTypography.body1R`; when text is entered, a circular clear button (32dp tap target, `clear-field` icon 24dp, `CircleShape`) appears on the right with 8dp equal padding from top/bottom/right edges
+- **Keyboard dismiss**: tapping outside the search bar clears focus and hides keyboard via `LocalFocusManager`; when search returns no results, tap also clears the search query
 - Component cards with `DSTypography.subtitle1M` name, `DSTypography.subhead2R` description, `arrow-right-s` chevron
 - **Card press animation**: `detectTapGestures` for reliable press detection (fires on every tap), `animateFloatAsState` with `spring(dampingRatio=0.6f, stiffness=800f)` for scale (0.97f) and alpha (0.7f) -- smooth bounce-back on release
 - All spacing uses `DSSpacing` tokens, all corner radii use `DSCornerRadius`
