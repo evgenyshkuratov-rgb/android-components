@@ -13,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.components.attachedmedia.AttachedMediaView
@@ -319,12 +322,15 @@ private fun AttachedMediaControlRow(label: String, content: @Composable () -> Un
 @Composable
 private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, suffix: String) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
 
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
         singleLine = true,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
         textStyle = DSTypography.subhead2R.toComposeTextStyle().copy(
             color = MaterialTheme.colorScheme.onSurface
         ),
