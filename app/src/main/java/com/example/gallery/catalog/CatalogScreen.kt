@@ -68,8 +68,13 @@ fun CatalogScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { focusManager.clearFocus() })
+            .pointerInput(filteredComponents.isEmpty()) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus()
+                    if (filteredComponents.isEmpty()) {
+                        searchQuery = ""
+                    }
+                })
             },
         contentPadding = PaddingValues(bottom = 48.dp)
     ) {
