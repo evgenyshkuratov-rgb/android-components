@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,9 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.components.attachedmedia.AttachedMediaView
@@ -41,11 +45,13 @@ fun AttachedMediaViewPreviewScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     var selectedBrand by remember { mutableIntStateOf(0) }
     var selectedType by remember { mutableIntStateOf(0) }
     var selectedError by remember { mutableIntStateOf(0) }
     var selectedFileType by remember { mutableIntStateOf(0) }
     var selectedMediaFileType by remember { mutableIntStateOf(0) } // 0=Image, 1=Video
+    var fileName by remember { mutableStateOf("") }
 
     val brand = DSBrand.entries[selectedBrand]
 
@@ -53,6 +59,9 @@ fun AttachedMediaViewPreviewScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            }
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
@@ -130,7 +139,8 @@ fun AttachedMediaViewPreviewScreen(
                 type = selectedType,
                 fileType = selectedFileType,
                 mediaFileType = selectedMediaFileType,
-                error = selectedError
+                error = selectedError,
+                fileName = fileName
             )
             key(previewKey) {
                 val tBrand = DSBrand.entries[previewKey.brand]
@@ -149,15 +159,23 @@ fun AttachedMediaViewPreviewScreen(
                         factory = { ctx ->
                             val view = AttachedMediaView(ctx)
                             val colorScheme = tBrand.attachedMediaColorScheme(previewKey.dark)
+                            val defaultName = when (tFileType) {
+                                AttachedMediaView.FileType.FILE -> "document"
+                                AttachedMediaView.FileType.AUDIO -> "recording"
+                                AttachedMediaView.FileType.IMAGE -> "photo"
+                                AttachedMediaView.FileType.VIDEO -> "video"
+                            }
+                            val ext = when (tFileType) {
+                                AttachedMediaView.FileType.FILE -> "pdf"
+                                AttachedMediaView.FileType.AUDIO -> "mp3"
+                                AttachedMediaView.FileType.IMAGE -> "jpg"
+                                AttachedMediaView.FileType.VIDEO -> "mp4"
+                            }
+                            val displayName = if (previewKey.fileName.isNotBlank()) previewKey.fileName else defaultName
                             view.configure(
                                 type = tType,
                                 fileType = tFileType,
-                                fileName = when (tFileType) {
-                                    AttachedMediaView.FileType.FILE -> "document.pdf"
-                                    AttachedMediaView.FileType.AUDIO -> "recording.mp3"
-                                    AttachedMediaView.FileType.IMAGE -> "photo.jpg"
-                                    AttachedMediaView.FileType.VIDEO -> "video.mp4"
-                                },
+                                fileName = "$displayName.$ext",
                                 fileSize = "2.4 MB",
                                 errorText = "Upload error",
                                 isError = tIsError,
@@ -199,6 +217,27 @@ fun AttachedMediaViewPreviewScreen(
                     onSelect = { selectedFileType = it }
                 )
             }
+
+            AttachedMediaControlRow(label = "File Name") {
+                val ext = when (AttachedMediaView.FileType.entries[selectedFileType]) {
+                    AttachedMediaView.FileType.FILE -> "pdf"
+                    AttachedMediaView.FileType.AUDIO -> "mp3"
+                    AttachedMediaView.FileType.IMAGE -> "jpg"
+                    AttachedMediaView.FileType.VIDEO -> "mp4"
+                }
+                val placeholder = when (AttachedMediaView.FileType.entries[selectedFileType]) {
+                    AttachedMediaView.FileType.FILE -> "document"
+                    AttachedMediaView.FileType.AUDIO -> "recording"
+                    AttachedMediaView.FileType.IMAGE -> "photo"
+                    AttachedMediaView.FileType.VIDEO -> "video"
+                }
+                AttachedMediaTextInput(
+                    value = fileName,
+                    onValueChange = { fileName = it },
+                    placeholder = placeholder,
+                    suffix = ".$ext"
+                )
+            }
         } else {
             AttachedMediaControlRow(label = "File Type") {
                 AttachedMediaSegmentedControl(
@@ -217,7 +256,8 @@ private data class AttachedMediaPreviewKey(
     val type: Int,
     val fileType: Int,
     val mediaFileType: Int,
-    val error: Int
+    val error: Int,
+    val fileName: String
 )
 
 private fun loadSampleImage(context: Context): Bitmap? {
@@ -263,6 +303,68 @@ private fun AttachedMediaControlRow(label: String, content: @Composable () -> Un
         Text(text = label, style = DSTypography.subhead4M.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         content()
     }
+}
+
+@Composable
+private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, suffix: String) {
+    val context = LocalContext.current
+    val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
+
+    BasicTextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        textStyle = DSTypography.subhead2R.toComposeTextStyle().copy(
+            color = MaterialTheme.colorScheme.onSurface
+        ),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        decorationBox = { innerTextField ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(start = 14.dp, end = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                    if (value.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = DSTypography.subhead2R.toComposeTextStyle(),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        )
+                    }
+                    innerTextField()
+                }
+                Text(
+                    text = suffix,
+                    style = DSTypography.subhead2R.toComposeTextStyle(),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                )
+                if (value.isNotEmpty()) {
+                    clearIcon?.bitmap?.let { bmp ->
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .clickable { onValueChange("") },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = "Clear",
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)),
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
 }
 
 @Composable
