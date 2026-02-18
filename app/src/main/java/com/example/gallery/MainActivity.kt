@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gallery.catalog.CatalogScreen
+import com.example.gallery.preview.AttachedMediaViewPreviewScreen
 import com.example.gallery.preview.CheckboxViewPreviewScreen
 import com.example.gallery.preview.ChipsViewPreviewScreen
 import com.example.gallery.theme.GalleryTheme
@@ -57,6 +58,12 @@ class MainActivity : ComponentActivity() {
                             val componentId = backStackEntry.arguments?.getString("componentId") ?: ""
                             when (componentId) {
                                 "CheckboxView" -> CheckboxViewPreviewScreen(
+                                    componentId = componentId,
+                                    isDarkTheme = isDarkTheme,
+                                    onThemeChanged = { isDarkTheme = it },
+                                    onBack = { navController.popBackStack() }
+                                )
+                                "AttachedMediaView" -> AttachedMediaViewPreviewScreen(
                                     componentId = componentId,
                                     isDarkTheme = isDarkTheme,
                                     onThemeChanged = { isDarkTheme = it },
