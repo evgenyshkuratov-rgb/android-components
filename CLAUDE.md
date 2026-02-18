@@ -32,7 +32,9 @@ These rules are non-negotiable. Every component and screen must follow them.
 | `basicColor08` | #14000000 | #14FFFFFF |
 | `basicColor25` | #40000000 | #40FFFFFF |
 | `basicColor50` | #80000000 | #80FFFFFF |
+| `basicColor15` | #26000000 | #26FFFFFF |
 | `basicColor55` | #8C000000 | #8CFFFFFF |
+| `basicColor60` | #99000000 | #99FFFFFF |
 | `basicColor90` | #E6000000 | #E6FFFFFF |
 
 ### Typography -- ONLY Roboto
@@ -74,6 +76,9 @@ android-components/
 │   │   │   │   ├── CheckboxView.kt      # Checkbox custom View with toggle
 │   │   │   │   ├── CheckboxColorScheme.kt # Color scheme data class
 │   │   │   │   └── CheckboxDrawable.kt  # Programmatic checkbox indicator drawable
+│   │   │   ├── attachedmedia/
+│   │   │   │   ├── AttachedMediaView.kt  # Attached media custom View (File/Media modes)
+│   │   │   │   └── AttachedMediaColorScheme.kt # Color scheme data class
 │   │   │   ├── chips/
 │   │   │   │   ├── ChipsView.kt        # Custom View with XML attrs
 │   │   │   │   └── ChipsColorScheme.kt # Color scheme data class
@@ -91,7 +96,8 @@ android-components/
 │   │   │   ├── font/roboto.ttf          # Roboto variable font
 │   │   │   ├── font/roboto_mono.ttf     # Roboto Mono variable font
 │   │   │   ├── layout/view_chips.xml    # ChipsView internal layout
-│   │   │   └── layout/view_checkbox.xml # CheckboxView internal layout
+│   │   │   ├── layout/view_checkbox.xml # CheckboxView internal layout
+│   │   │   └── layout/view_attached_media.xml # AttachedMediaView internal layout
 │   │   └── AndroidManifest.xml
 │   └── build.gradle.kts
 │
@@ -103,12 +109,14 @@ android-components/
 │   │   │   │   └── CatalogScreen.kt     # Component catalog with search + theme toggle
 │   │   │   ├── preview/
 │   │   │   │   ├── ChipsViewPreviewScreen.kt    # ChipsView interactive preview
-│   │   │   │   └── CheckboxViewPreviewScreen.kt # CheckboxView interactive preview
+│   │   │   │   ├── CheckboxViewPreviewScreen.kt # CheckboxView interactive preview
+│   │   │   │   └── AttachedMediaViewPreviewScreen.kt # AttachedMediaView interactive preview
 │   │   │   └── theme/
 │   │   │       ├── GalleryTheme.kt      # Compose theme wrapping DS tokens
 │   │   │       └── DSTypographyCompose.kt # DSTextStyle → Compose TextStyle bridge
 │   │   ├── assets/
-│   │   │   └── icons/                   # 280 SVG icons + frisbee-logo.svg
+│   │   │   ├── icons/                   # 280 SVG icons + frisbee-logo.svg
+│   │   │   └── images/sample.jpg        # Sample image for component previews
 │   │   └── res/
 │   └── build.gradle.kts                 # Includes generateDesignSystemCounts task
 │
@@ -116,7 +124,8 @@ android-components/
 │   ├── index.json                       # Component index (name + description)
 │   └── components/
 │       ├── ChipsView.json               # ChipsView specification
-│       └── CheckboxView.json            # CheckboxView specification
+│       ├── CheckboxView.json            # CheckboxView specification
+│       └── AttachedMediaView.json       # AttachedMediaView specification
 │
 ├── mcp-server/                          # MCP server (Node.js)
 │   ├── package.json
@@ -245,6 +254,104 @@ checkbox.onCheckedChange = { checked -> /* handle change */ }
 - Enabled: Yes / No
 - Interactive: tapping the checkbox toggles it live, synced with Compose state
 
+### AttachedMediaView
+
+A component for displaying file or media attachments with two display modes, normal and error states, and brand-aware theming.
+
+**Display Modes:**
+
+| Mode | Size | Description |
+|------|------|-------------|
+| `FILE` | 216x56dp | File card with icon/thumbnail preview, file name, and file size |
+| `MEDIA` | 80x80dp | Square media thumbnail with optional duration badge |
+
+**File Types (FILE mode):**
+
+| FileType | Preview | Description |
+|----------|---------|-------------|
+| `FILE` | `document-24` icon | Generic file with icon preview |
+| `AUDIO` | `sound` icon | Audio file with icon preview |
+| `IMAGE` | Thumbnail image | Image file with photo thumbnail |
+| `VIDEO` | Thumbnail + play button | Video file with photo thumbnail and 24dp play overlay |
+
+**Error States:**
+
+| Mode | Normal | Error |
+|------|--------|-------|
+| FILE | `backgroundSecond` bg, `basicColor55` icon, `basicColor90` name, `basicColor50` size | `dangerDefault` (#E06141) bg, `white80` icon, white name, `white70` error text |
+| MEDIA | Thumbnail image with optional badge | Thumbnail + danger gradient overlay + white error text |
+
+**Architecture:**
+
+- Extends `FrameLayout` with show/hide for File and Media view groups
+- Custom XML attributes declared in `res/values/attrs.xml` (attachedMediaType, attachedFileType, attachedFileName, etc., 25 attrs)
+- Programmatic API via `configure()` method
+- `onClose: (() -> Unit)?` callback for close button
+- Theming through `AttachedMediaColorScheme` data class -- colors flow from `DSBrand.attachedMediaColorScheme(isDark)`
+- Layout inflated from `res/layout/view_attached_media.xml` using `<merge>` tag
+- **Icon tinting**: uses `PorterDuff.Mode.SRC_IN` (not default `SRC_ATOP`) to correctly apply alpha from semi-transparent colors like `basicColor55`
+- File preview: 40x40dp container with 8dp corner radius
+- Video play overlay: 24dp circle, `Black50` (#80000000) background, 16dp `play` icon with `white70` (#B3FFFFFF)
+- Close button: 24dp circle at top-right 4dp offset, `Black80` (#CC000000) background, `close-s` icon
+- Media badge: 24dp height, `Black80` bg, 12dp corner radius, `play` icon 16dp + duration text (`subcaptionR`)
+
+**Color Scheme:**
+
+| Field | Token | Light | Dark |
+|-------|-------|-------|------|
+| `backgroundFile` | backgroundSecond | #F5F5F5 | per-brand |
+| `backgroundFileError` | dangerDefault | #E06141 | #E06141 |
+| `filePreviewBg` | basicColor15 | #26000000 | #26FFFFFF |
+| `fileIconTint` | basicColor55 | #8C000000 | #8CFFFFFF |
+| `fileIconErrorTint` | white80 | #CCFFFFFF | #CCFFFFFF |
+| `fileNameColor` | basicColor90 | #E6000000 | #E6FFFFFF |
+| `fileSizeColor` | basicColor50 | #80000000 | #80FFFFFF |
+| `fileNameErrorColor` | white | #FFFFFF | #FFFFFF |
+| `fileSubErrorColor` | white70 | #B3FFFFFF | #B3FFFFFF |
+| `closeButtonBg` | Black80 | #CC000000 | #CC000000 |
+| `closeIconTint` | white | #FFFFFF | #FFFFFF |
+| `badgeBg` | Black80 | #CC000000 | #CC000000 |
+| `badgeTextColor` | white | #FFFFFF | #FFFFFF |
+| `videoPlayBg` | Black50 | #80000000 | #80000000 |
+| `videoPlayIconTint` | white70 | #B3FFFFFF | #B3FFFFFF |
+
+**Typography:**
+
+| Element | Style | Spec |
+|---------|-------|------|
+| File name | `bubbleM13` | 13sp Medium, line-height 16sp |
+| File size / error text | `caption2R` | 12sp Regular, line-height 14sp |
+| Media error text | `caption2R` | 12sp Regular, line-height 14sp |
+| Badge duration | `subcaptionR` | 11sp Regular, line-height 13sp |
+
+**Programmatic Usage:**
+
+```kotlin
+val media = AttachedMediaView(context)
+media.configure(
+    type = AttachedMediaView.MediaType.FILE,
+    fileType = AttachedMediaView.FileType.AUDIO,
+    fileName = "recording.mp3",
+    fileSize = "2.4 MB",
+    errorText = "Upload error",
+    isError = false,
+    thumbnailImage = bitmap,
+    mediaDuration = "1:23",
+    showBadge = true,
+    colorScheme = brand.attachedMediaColorScheme(isDark)
+)
+media.onClose = { /* handle close */ }
+```
+
+**Preview Controls:**
+
+- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
+- Type: File / Media
+- Error: No / Yes
+- File Type: File / Audio / Image / Video (visible only when Type=File)
+- Preview container uses `backgroundBase` (not `backgroundSecond`) so FILE cards are visible
+- Sample image loaded from `assets/images/sample.jpg` for Media and Image/Video file previews
+
 ## Brand Theming
 
 Five brands with distinct accent colors and dark-mode background variations:
@@ -260,6 +367,7 @@ Five brands with distinct accent colors and dark-mode background variations:
 Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generate the color scheme for each component:
 - `DSBrand.chipsColorScheme(isDark)` → `ChipsColorScheme`
 - `DSBrand.checkboxColorScheme(isDark)` → `CheckboxColorScheme`
+- `DSBrand.attachedMediaColorScheme(isDark)` → `AttachedMediaColorScheme`
 
 ## Adding a New Component
 
@@ -272,7 +380,7 @@ Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generat
 
 2. **Add brand theming** in `DSBrand.kt`
    - Add a `<name>ColorScheme(isDark: Boolean)` method
-   - Add any new `basicColor` helpers if needed (existing: 08, 25, 50, 55, 90)
+   - Add any new `basicColor` helpers if needed (existing: 08, 15, 25, 50, 55, 60, 90)
 
 3. **Create JSON spec** in `specs/components/<Name>.json`
    - Include name, description, import path, properties, XML usage, Kotlin usage, and tags
