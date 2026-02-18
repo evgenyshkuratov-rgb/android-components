@@ -45,6 +45,7 @@ fun AttachedMediaViewPreviewScreen(
     var selectedType by remember { mutableIntStateOf(0) }
     var selectedError by remember { mutableIntStateOf(0) }
     var selectedFileType by remember { mutableIntStateOf(0) }
+    var selectedMediaFileType by remember { mutableIntStateOf(0) } // 0=Image, 1=Video
 
     val brand = DSBrand.entries[selectedBrand]
 
@@ -128,6 +129,7 @@ fun AttachedMediaViewPreviewScreen(
                 dark = isDarkTheme,
                 type = selectedType,
                 fileType = selectedFileType,
+                mediaFileType = selectedMediaFileType,
                 error = selectedError
             )
             key(previewKey) {
@@ -135,6 +137,7 @@ fun AttachedMediaViewPreviewScreen(
                 val tType = AttachedMediaView.MediaType.entries[previewKey.type]
                 val tFileType = AttachedMediaView.FileType.entries[previewKey.fileType]
                 val tIsError = previewKey.error == 1
+                val tIsMediaVideo = previewKey.mediaFileType == 1
                 val needsThumbnail = tType == AttachedMediaView.MediaType.MEDIA ||
                         (tType == AttachedMediaView.MediaType.FILE && (tFileType == AttachedMediaView.FileType.IMAGE || tFileType == AttachedMediaView.FileType.VIDEO))
                 val sampleBitmap = if (needsThumbnail) {
@@ -159,8 +162,8 @@ fun AttachedMediaViewPreviewScreen(
                                 errorText = "Upload error",
                                 isError = tIsError,
                                 thumbnailImage = sampleBitmap,
-                                mediaDuration = "1:23",
-                                showBadge = tType == AttachedMediaView.MediaType.MEDIA && !tIsError,
+                                mediaDuration = if (tIsMediaVideo) "1:23" else "",
+                                showBadge = tType == AttachedMediaView.MediaType.MEDIA && tIsMediaVideo && !tIsError,
                                 colorScheme = colorScheme
                             )
                             view
@@ -196,6 +199,14 @@ fun AttachedMediaViewPreviewScreen(
                     onSelect = { selectedFileType = it }
                 )
             }
+        } else {
+            AttachedMediaControlRow(label = "File Type") {
+                AttachedMediaSegmentedControl(
+                    options = listOf("Image", "Video"),
+                    selectedIndex = selectedMediaFileType,
+                    onSelect = { selectedMediaFileType = it }
+                )
+            }
         }
     }
 }
@@ -205,6 +216,7 @@ private data class AttachedMediaPreviewKey(
     val dark: Boolean,
     val type: Int,
     val fileType: Int,
+    val mediaFileType: Int,
     val error: Int
 )
 
