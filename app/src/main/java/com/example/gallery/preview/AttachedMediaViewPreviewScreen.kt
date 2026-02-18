@@ -37,6 +37,7 @@ import com.example.components.designsystem.DSIcon
 import com.example.components.designsystem.DSTypography
 import com.example.gallery.theme.toComposeTextStyle
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AttachedMediaViewPreviewScreen(
     componentId: String,
@@ -54,6 +55,15 @@ fun AttachedMediaViewPreviewScreen(
     var fileName by remember { mutableStateOf("") }
 
     val brand = DSBrand.entries[selectedBrand]
+    val scrollState = rememberScrollState()
+    val imeVisible = WindowInsets.isImeVisible
+
+    LaunchedEffect(imeVisible) {
+        if (imeVisible) {
+            snapshotFlow { scrollState.maxValue }
+                .collect { scrollState.scrollTo(it) }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -63,8 +73,9 @@ fun AttachedMediaViewPreviewScreen(
                 detectTapGestures(onTap = { focusManager.clearFocus() })
             }
             .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
+            .imePadding()
+            .verticalScroll(scrollState)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         // Header

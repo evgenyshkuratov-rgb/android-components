@@ -52,7 +52,7 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
     val isDark = isDarkTheme
 
     Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).statusBarsPadding().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).statusBarsPadding().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
