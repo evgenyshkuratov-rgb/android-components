@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.components.designsystem.DSCornerRadius
 import com.example.components.designsystem.DSIcon
@@ -55,6 +56,7 @@ fun CatalogScreen(
     onComponentClick: (String) -> Unit
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     var searchQuery by remember { mutableStateOf("") }
     val filteredComponents = remember(searchQuery) {
         if (searchQuery.isBlank()) components
@@ -63,7 +65,12 @@ fun CatalogScreen(
     val statusText = remember { buildStatusText(context) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            },
         contentPadding = PaddingValues(bottom = 48.dp)
     ) {
         item {
