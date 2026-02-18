@@ -64,8 +64,8 @@ val generateDesignSystemCounts by tasks.registering {
         val outDir = outputDir.get().asFile
         outDir.mkdirs()
 
-        val iconsRepo = File(System.getProperty("user.home"), "Clode code projects/Icons library")
         val compsRoot = rootProject.projectDir
+        val iconsRepo = File(compsRoot.parentFile, "icons-library")
 
         // 1. Pull latest from both repos (silent, skip if offline)
         fun gitPull(repo: File) {
