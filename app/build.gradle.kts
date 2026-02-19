@@ -93,22 +93,11 @@ val generateDesignSystemCounts by tasks.registering {
         val colorCount = jsonArrayLength(File(iconsRepo, "colors.json"), "colors")
         val componentCount = jsonArrayLength(File(compsRoot, "specs/index.json"), "components")
 
-        // 3. Get last-updated timestamps via git log
-        fun gitTimestamp(repo: File, vararg paths: String): String? {
-            return try {
-                val args = listOf("git", "-C", repo.absolutePath, "log", "-1", "--format=%aI", "--") + paths.toList()
-                val process = ProcessBuilder(args)
-                    .redirectErrorStream(true)
-                    .start()
-                val result = process.inputStream.bufferedReader().readText().trim()
-                process.waitFor()
-                result.ifEmpty { null }
-            } catch (_: Exception) { null }
-        }
-
-        val iconsUpdated = gitTimestamp(iconsRepo, "icons/")
-        val colorsUpdated = gitTimestamp(iconsRepo, "colors.json")
-        val componentsUpdated = gitTimestamp(compsRoot, "Sources/", "specs/")
+        // 3. Use current timestamp (last check time)
+        val now = java.time.OffsetDateTime.now(java.time.ZoneOffset.UTC).format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        val iconsUpdated = now
+        val colorsUpdated = now
+        val componentsUpdated = now
 
         // 4. Write bundled JSON
         val entries = mutableListOf<String>()
