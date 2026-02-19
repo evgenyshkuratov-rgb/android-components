@@ -62,7 +62,7 @@ fun AvatarViewPreviewScreen(
     val focusManager = LocalFocusManager.current
     var selectedBrand by rememberSaveable { mutableIntStateOf(0) }
     var selectedView by rememberSaveable { mutableIntStateOf(0) }
-    var selectedSizeIndex by rememberSaveable { mutableIntStateOf(4) } // default SIZE_48
+    var selectedSizeIndex by rememberSaveable { mutableIntStateOf(3) } // default SIZE_56
     var initialsText by rememberSaveable { mutableStateOf("") }
     var selectedImageIndex by rememberSaveable { mutableIntStateOf(0) }
     var selectedGradientIndex by rememberSaveable { mutableIntStateOf(0) }
