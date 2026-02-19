@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,6 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -22,9 +26,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
@@ -53,10 +60,18 @@ fun AvatarViewPreviewScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    var selectedBrand by remember { mutableIntStateOf(0) }
-    var selectedView by remember { mutableIntStateOf(0) }
-    var selectedSizeIndex by remember { mutableIntStateOf(4) } // default SIZE_48
-    var initialsText by remember { mutableStateOf("") }
+    var selectedBrand by rememberSaveable { mutableIntStateOf(0) }
+    var selectedView by rememberSaveable { mutableIntStateOf(0) }
+    var selectedSizeIndex by rememberSaveable { mutableIntStateOf(4) } // default SIZE_48
+    var initialsText by rememberSaveable { mutableStateOf("") }
+    var selectedImageIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedGradientIndex by rememberSaveable { mutableIntStateOf(0) }
+
+    val avatarImages = remember { loadAllAvatarImages(context) }
+    val avatarCount = avatarImages.size
+    val gradientCount = remember(selectedBrand, isDarkTheme) {
+        DSBrand.entries[selectedBrand].avatarGradientPairs(isDarkTheme).size
+    }
 
     val brand = DSBrand.entries[selectedBrand]
     val scrollState = rememberScrollState()
@@ -122,6 +137,11 @@ fun AvatarViewPreviewScreen(
         // Preview container
         val brandCount = DSBrand.entries.size
         val bgColor = Color(brand.backgroundSecond(isDarkTheme))
+        var isPreviewPressed by remember { mutableStateOf(false) }
+        val previewScale by animateFloatAsState(
+            targetValue = if (isPreviewPressed) 0.9f else 1f,
+            animationSpec = spring(dampingRatio = 0.5f, stiffness = 800f)
+        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -145,6 +165,25 @@ fun AvatarViewPreviewScreen(
                             }
                         }
                     )
+                }
+                .pointerInput(selectedView, avatarCount, gradientCount) {
+                    detectTapGestures(
+                        onPress = {
+                            isPreviewPressed = true
+                            tryAwaitRelease()
+                            isPreviewPressed = false
+                        },
+                        onTap = {
+                            when (selectedView) {
+                                0 -> if (avatarCount > 0) {
+                                    selectedImageIndex = (selectedImageIndex + 1) % avatarCount
+                                }
+                                1 -> if (gradientCount > 0) {
+                                    selectedGradientIndex = (selectedGradientIndex + 1) % gradientCount
+                                }
+                            }
+                        }
+                    )
                 },
             contentAlignment = Alignment.Center
         ) {
@@ -153,22 +192,33 @@ fun AvatarViewPreviewScreen(
                 dark = isDarkTheme,
                 view = selectedView,
                 size = selectedSizeIndex,
-                initials = initialsText
+                initials = initialsText,
+                imageIndex = selectedImageIndex,
+                gradientIndex = selectedGradientIndex
             )
             key(previewKey) {
                 val tBrand = DSBrand.entries[previewKey.brand]
                 val tViewType = AvatarView.AvatarViewType.entries[previewKey.view]
                 val tSize = AvatarView.AvatarSize.entries[previewKey.size]
                 val needsImage = tViewType == AvatarView.AvatarViewType.IMAGE
-                val sampleBitmap = if (needsImage) {
-                    remember { loadAvatarImage(context) }
+                val sampleBitmap = if (needsImage && avatarImages.isNotEmpty()) {
+                    avatarImages[previewKey.imageIndex % avatarImages.size]
                 } else null
 
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize().scale(previewScale),
+                    contentAlignment = Alignment.Center
+                ) {
                     AndroidView(
                         factory = { ctx ->
                             val avatar = AvatarView(ctx)
-                            val colorScheme = tBrand.avatarColorScheme(previewKey.dark)
+                            val baseScheme = tBrand.avatarColorScheme(previewKey.dark)
+                            val gradientPairs = tBrand.avatarGradientPairs(previewKey.dark)
+                            val selectedPair = gradientPairs[previewKey.gradientIndex % gradientPairs.size]
+                            val colorScheme = baseScheme.copy(
+                                initialsGradientTop = selectedPair.top,
+                                initialsGradientBottom = selectedPair.bottom
+                            )
                             avatar.configure(
                                 type = tViewType,
                                 size = tSize,
@@ -198,7 +248,8 @@ fun AvatarViewPreviewScreen(
             AvatarSizeSlider(
                 sizes = AvatarView.AvatarSize.entries,
                 selectedIndex = selectedSizeIndex,
-                onSelect = { selectedSizeIndex = it }
+                onSelect = { selectedSizeIndex = it },
+                accentColor = Color(brand.accentColor(isDarkTheme))
             )
         }
 
@@ -208,7 +259,8 @@ fun AvatarViewPreviewScreen(
                 AvatarTextInput(
                     value = initialsText,
                     onValueChange = { if (it.length <= 2) initialsText = it },
-                    placeholder = "AB"
+                    placeholder = "AB",
+                    accentColor = Color(brand.accentColor(isDarkTheme))
                 )
             }
         }
@@ -220,14 +272,30 @@ private data class AvatarPreviewKey(
     val dark: Boolean,
     val view: Int,
     val size: Int,
-    val initials: String
+    val initials: String,
+    val imageIndex: Int,
+    val gradientIndex: Int
 )
 
-private fun loadAvatarImage(context: Context): Bitmap? {
-    return try {
-        context.assets.open("images/avatar.jpg").use { BitmapFactory.decodeStream(it) }
-    } catch (_: Exception) {
-        null
+private val avatarFiles = listOf(
+    "images/avatar_01.png",
+    "images/avatar_02.png",
+    "images/avatar_03.png",
+    "images/avatar_04.png",
+    "images/avatar_05.jpg",
+    "images/avatar_06.png",
+    "images/avatar_07.png",
+    "images/avatar_08.png",
+    "images/avatar_09.png"
+)
+
+private fun loadAllAvatarImages(context: Context): List<Bitmap> {
+    return avatarFiles.mapNotNull { path ->
+        try {
+            context.assets.open(path).use { BitmapFactory.decodeStream(it) }
+        } catch (_: Exception) {
+            null
+        }
     }
 }
 
@@ -303,7 +371,8 @@ private fun AvatarSegmentedControl(options: List<String>, selectedIndex: Int, on
 private fun AvatarSizeSlider(
     sizes: List<AvatarView.AvatarSize>,
     selectedIndex: Int,
-    onSelect: (Int) -> Unit
+    onSelect: (Int) -> Unit,
+    accentColor: Color
 ) {
     val lastIndex = sizes.lastIndex
     val invertedValue = (lastIndex - selectedIndex).toFloat()
@@ -332,8 +401,8 @@ private fun AvatarSizeSlider(
             valueRange = 0f..lastIndex.toFloat(),
             steps = lastIndex - 1,
             colors = SliderDefaults.colors(
-                thumbColor = MaterialTheme.colorScheme.primary,
-                activeTrackColor = MaterialTheme.colorScheme.primary,
+                thumbColor = accentColor,
+                activeTrackColor = accentColor,
                 inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
@@ -341,11 +410,16 @@ private fun AvatarSizeSlider(
 }
 
 @Composable
-private fun AvatarTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String) {
+private fun AvatarTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, accentColor: Color) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
+    val selectionColors = TextSelectionColors(
+        handleColor = accentColor,
+        backgroundColor = accentColor.copy(alpha = 0.4f)
+    )
 
+    CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -355,7 +429,7 @@ private fun AvatarTextInput(value: String, onValueChange: (String) -> Unit, plac
         textStyle = DSTypography.subhead2R.toComposeTextStyle().copy(
             color = MaterialTheme.colorScheme.onSurface
         ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(accentColor),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -398,4 +472,5 @@ private fun AvatarTextInput(value: String, onValueChange: (String) -> Unit, plac
         },
         modifier = Modifier.fillMaxWidth()
     )
+    }
 }

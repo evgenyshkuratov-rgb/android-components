@@ -2,6 +2,8 @@ package com.example.components.avatar
 
 import android.graphics.Color
 
+data class AvatarGradientPair(val top: Int, val bottom: Int)
+
 data class AvatarColorScheme(
     val initialsGradientTop: Int,
     val initialsGradientBottom: Int,

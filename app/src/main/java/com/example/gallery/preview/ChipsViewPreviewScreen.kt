@@ -21,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,9 +45,9 @@ import com.example.gallery.theme.toComposeTextStyle
 @Composable
 fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
-    var selectedState by remember { mutableIntStateOf(0) }
-    var selectedSize by remember { mutableIntStateOf(0) }
-    var selectedBrand by remember { mutableIntStateOf(0) }
+    var selectedState by rememberSaveable { mutableIntStateOf(0) }
+    var selectedSize by rememberSaveable { mutableIntStateOf(0) }
+    var selectedBrand by rememberSaveable { mutableIntStateOf(0) }
 
     val brand = DSBrand.entries[selectedBrand]
     val isDark = isDarkTheme

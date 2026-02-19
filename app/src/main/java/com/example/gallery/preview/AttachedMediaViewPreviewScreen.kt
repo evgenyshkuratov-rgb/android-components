@@ -13,12 +13,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,12 +54,12 @@ fun AttachedMediaViewPreviewScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    var selectedBrand by remember { mutableIntStateOf(0) }
-    var selectedType by remember { mutableIntStateOf(0) }
-    var selectedError by remember { mutableIntStateOf(0) }
-    var selectedFileType by remember { mutableIntStateOf(0) }
-    var selectedMediaFileType by remember { mutableIntStateOf(0) } // 0=Image, 1=Video
-    var fileName by remember { mutableStateOf("") }
+    var selectedBrand by rememberSaveable { mutableIntStateOf(0) }
+    var selectedType by rememberSaveable { mutableIntStateOf(0) }
+    var selectedError by rememberSaveable { mutableIntStateOf(0) }
+    var selectedFileType by rememberSaveable { mutableIntStateOf(0) }
+    var selectedMediaFileType by rememberSaveable { mutableIntStateOf(0) } // 0=Image, 1=Video
+    var fileName by rememberSaveable { mutableStateOf("") }
 
     val brand = DSBrand.entries[selectedBrand]
     val scrollState = rememberScrollState()
@@ -249,7 +253,8 @@ fun AttachedMediaViewPreviewScreen(
                     value = fileName,
                     onValueChange = { fileName = it },
                     placeholder = placeholder,
-                    suffix = ".$ext"
+                    suffix = ".$ext",
+                    accentColor = Color(brand.accentColor(isDarkTheme))
                 )
             }
         } else {
@@ -320,11 +325,16 @@ private fun AttachedMediaControlRow(label: String, content: @Composable () -> Un
 }
 
 @Composable
-private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, suffix: String) {
+private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, suffix: String, accentColor: Color) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
+    val selectionColors = TextSelectionColors(
+        handleColor = accentColor,
+        backgroundColor = accentColor.copy(alpha = 0.4f)
+    )
 
+    CompositionLocalProvider(LocalTextSelectionColors provides selectionColors) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -334,7 +344,7 @@ private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Uni
         textStyle = DSTypography.subhead2R.toComposeTextStyle().copy(
             color = MaterialTheme.colorScheme.onSurface
         ),
-        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        cursorBrush = SolidColor(accentColor),
         decorationBox = { innerTextField ->
             Row(
                 modifier = Modifier
@@ -383,6 +393,7 @@ private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Uni
         },
         modifier = Modifier.fillMaxWidth()
     )
+    }
 }
 
 @Composable

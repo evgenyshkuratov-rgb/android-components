@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,11 +37,11 @@ import com.example.gallery.theme.toComposeTextStyle
 @Composable
 fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
-    var selectedShape by remember { mutableIntStateOf(0) }
-    var selectedBrand by remember { mutableIntStateOf(0) }
-    var isChecked by remember { mutableStateOf(false) }
-    var showText by remember { mutableIntStateOf(0) }
-    var isEnabled by remember { mutableIntStateOf(0) }
+    var selectedShape by rememberSaveable { mutableIntStateOf(0) }
+    var selectedBrand by rememberSaveable { mutableIntStateOf(0) }
+    var isChecked by rememberSaveable { mutableStateOf(false) }
+    var showText by rememberSaveable { mutableIntStateOf(0) }
+    var isEnabled by rememberSaveable { mutableIntStateOf(0) }
 
     val brand = DSBrand.entries[selectedBrand]
     val isDark = isDarkTheme
