@@ -57,6 +57,7 @@ enum class DSBrand(val displayName: String) {
             checkedFill = accent,
             checkedFillDisabled = accentDisabled,
             checkmarkColor = Color.WHITE,
+            checkmarkColorDisabled = Color.parseColor("#80FFFFFF"),
             textEnabled = basicColor50(isDark),
             textDisabled = basicColor25(isDark)
         )

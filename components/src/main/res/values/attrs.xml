@@ -39,6 +39,7 @@
         <attr name="checkboxCheckedFill" format="color"/>
         <attr name="checkboxCheckedFillDisabled" format="color"/>
         <attr name="checkboxCheckmarkColor" format="color"/>
+        <attr name="checkboxCheckmarkColorDisabled" format="color"/>
         <attr name="checkboxTextEnabled" format="color"/>
         <attr name="checkboxTextDisabled" format="color"/>
     </declare-styleable>

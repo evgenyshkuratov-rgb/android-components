@@ -8,6 +8,7 @@ data class CheckboxColorScheme(
     val checkedFill: Int,
     val checkedFillDisabled: Int,
     val checkmarkColor: Int,
+    val checkmarkColorDisabled: Int,
     val textEnabled: Int,
     val textDisabled: Int
 ) {
@@ -18,6 +19,7 @@ data class CheckboxColorScheme(
             checkedFill = Color.parseColor("#40B259"),
             checkedFillDisabled = Color.parseColor("#6640B259"),
             checkmarkColor = Color.WHITE,
+            checkmarkColorDisabled = Color.parseColor("#80FFFFFF"),
             textEnabled = Color.parseColor("#80000000"),
             textDisabled = Color.parseColor("#40000000")
         )

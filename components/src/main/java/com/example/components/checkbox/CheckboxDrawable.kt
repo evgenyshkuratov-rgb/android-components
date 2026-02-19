@@ -47,7 +47,7 @@ class CheckboxDrawable : Drawable() {
 
             canvas.save()
             canvas.scale(scaleX, scaleY)
-            checkmarkPaint.color = colorScheme.checkmarkColor
+            checkmarkPaint.color = if (isViewEnabled) colorScheme.checkmarkColor else colorScheme.checkmarkColorDisabled
             canvas.drawPath(checkmarkPath, checkmarkPaint)
             canvas.restore()
         } else {
