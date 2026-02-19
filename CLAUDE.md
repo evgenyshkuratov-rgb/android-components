@@ -112,6 +112,7 @@ android-components/
 │   │   │   ├── catalog/
 │   │   │   │   └── CatalogScreen.kt     # Component catalog with search + theme toggle
 │   │   │   ├── preview/
+│   │   │   │   ├── PreviewComponents.kt         # Shared preview UI (PreviewSlider)
 │   │   │   │   ├── ChipsViewPreviewScreen.kt    # ChipsView interactive preview
 │   │   │   │   ├── CheckboxViewPreviewScreen.kt # CheckboxView interactive preview
 │   │   │   │   ├── AvatarViewPreviewScreen.kt   # AvatarView interactive preview
@@ -583,6 +584,7 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Brand swipe**: horizontal swipe (`detectHorizontalDragGestures`, 50dp threshold) on preview container cycles brands with wrap-around (last → first, first → last)
 - **Preview container**: 192dp height, rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
+- **Slider control**: use shared `PreviewSlider` from `PreviewComponents.kt` for value selection sliders. Shows start/end labels above the slider, brand accent thumb/track. Selected value goes in the control label via round separator: `"Size · 56dp"`. Usage: `PreviewSlider(values, selectedIndex, onSelect, accentColor, startLabel, endLabel)`
 - **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
 - **Accent colors**: text input cursors, selection handles (`CompositionLocalProvider` + `LocalTextSelectionColors`), and slider controls use `Color(brand.accentColor(isDarkTheme))` -- **NEVER** use `MaterialTheme.colorScheme.primary` for these in preview screens
 - **State persistence**: all control states (`selectedBrand`, `selectedView`, etc.) must use `rememberSaveable` (not `remember`) to survive screen rotation. Use `remember` only for UI-only states like press animations
