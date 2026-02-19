@@ -206,12 +206,12 @@ A checkbox component with square and circle shapes, optional label text, and ena
 | State | Unchecked | Checked |
 |-------|-----------|---------|
 | Enabled | `borderEnabled` stroke (basicColor55) | `checkedFill` (accent color) + white checkmark |
-| Disabled | `borderDisabled` stroke (basicColor25) | `checkedFill` (accent color) + white checkmark |
+| Disabled | `borderDisabled` stroke (basicColor25) | `checkedFillDisabled` (accent color 40% alpha) + white checkmark |
 
 **Architecture:**
 
 - Extends `LinearLayout` with `HORIZONTAL` orientation and `CENTER_VERTICAL` gravity
-- Custom XML attributes declared in `res/values/attrs.xml` (checkboxShape, checkboxChecked, checkboxEnabled, checkboxShowText, checkboxText, 6 color attrs)
+- Custom XML attributes declared in `res/values/attrs.xml` (checkboxShape, checkboxChecked, checkboxEnabled, checkboxShowText, checkboxText, 7 color attrs)
 - Programmatic API via `configure()`, `setChecked()`, `getChecked()`, `toggle()` methods
 - `onCheckedChange: ((Boolean) -> Unit)?` callback fired on toggle
 - Theming through `CheckboxColorScheme` data class -- colors flow from `DSBrand.checkboxColorScheme(isDark)`
@@ -227,6 +227,7 @@ A checkbox component with square and circle shapes, optional label text, and ena
 | `borderEnabled` | basicColor55 | #8C000000 | #8CFFFFFF |
 | `borderDisabled` | basicColor25 | #40000000 | #40FFFFFF |
 | `checkedFill` | accentColor | per-brand | per-brand |
+| `checkedFillDisabled` | accentColor 40% | per-brand @40% alpha | per-brand @40% alpha |
 | `checkmarkColor` | white | #FFFFFF | #FFFFFF |
 | `textEnabled` | basicColor50 | #80000000 | #80FFFFFF |
 | `textDisabled` | basicColor25 | #40000000 | #40FFFFFF |
