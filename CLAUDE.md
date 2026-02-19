@@ -123,7 +123,7 @@ android-components/
 │   │   │   ├── icons/                   # 280 SVG icons + frisbee-logo.svg
 │   │   │   └── images/
 │   │   │       ├── sample.jpg           # Sample image for AttachedMedia previews
-│   │   │       └── avatar.jpg           # Sample photo for AvatarView previews
+│   │   │       └── avatar_01..09.png/jpg # 9 avatar photos for AvatarView previews
 │   │   └── res/
 │   └── build.gradle.kts                 # Includes generateDesignSystemCounts task
 │
@@ -304,15 +304,25 @@ A circular avatar component with 4 view modes and 12 sizes, using gradient backg
 | 18 | — | 7sp Medium |
 | 16 | — | 6sp Medium |
 
+**Avatarka Gradient Pairs:**
+
+11 gradient pairs (0-10) sourced from `icons-library/colors.json`, stored in `DSBrand` companion object. Accessible via `DSBrand.avatarGradientPairs(isDark)` which returns `List<AvatarGradientPair>`.
+
+- Frisbee, TDM, Sover, KCHAT share identical gradient palettes
+- Sens has a unique pink/purple palette
+- Colors differ between Light and Dark themes
+- Pair 5 (blue) is used as the Bot gradient
+- Saved gradient is separate (gray, via `DSBrand.avatarSavedGradient(isDark)`)
+
 **Color Scheme:**
 
-| Field | Default | Description |
+| Field | Default (Light) | Description |
 |-------|---------|-------------|
-| `initialsGradientTop` | #4BCBEC | Top color for initials gradient |
-| `initialsGradientBottom` | #0099D6 | Bottom color for initials gradient |
-| `botGradientTop` | #70ACF1 | Top color for bot gradient |
-| `botGradientBottom` | #407EDA | Bottom color for bot gradient |
-| `savedGradientTop` | #BABABA | Top color for saved gradient |
+| `initialsGradientTop` | pair 0 top | Top color for initials gradient (from selected pair) |
+| `initialsGradientBottom` | pair 0 bottom | Bottom color for initials gradient (from selected pair) |
+| `botGradientTop` | pair 5 top | Top color for bot gradient (blue) |
+| `botGradientBottom` | pair 5 bottom | Bottom color for bot gradient (blue) |
+| `savedGradientTop` | #BABABA (L) / #A8A8A8 (D) | Top color for saved gradient |
 | `savedGradientBottom` | #777784 | Bottom color for saved gradient |
 | `contentColor` | #FFFFFF | Text and icon color |
 
@@ -333,9 +343,10 @@ avatar.configure(
 
 - Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
 - View: Image / Initials / Bot / Saved (segmented)
-- Size: Slider control (16dp–160dp) with current value label
-- Initials: text input (visible only when View=Initials), max 2 chars, placeholder "AB" used as default when empty
-- Avatar image loaded from `assets/images/avatar.jpg`
+- Size: Slider control (16dp–160dp) with brand accent color for thumb and active track
+- Initials: text input (visible only when View=Initials), max 2 chars, placeholder "AB" used as default when empty; brand accent cursor and selection handles
+- **Tap-to-cycle (Image mode):** tapping preview cycles through 9 avatar photos (`avatar_01..09`) with spring scale animation (0.9x press feedback)
+- **Tap-to-cycle (Initials mode):** tapping preview cycles through 11 Avatarka gradient pairs (brand- and theme-aware)
 
 ### AttachedMediaView
 
@@ -453,6 +464,8 @@ Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generat
 - `DSBrand.chipsColorScheme(isDark)` → `ChipsColorScheme`
 - `DSBrand.checkboxColorScheme(isDark)` → `CheckboxColorScheme`
 - `DSBrand.avatarColorScheme(isDark)` → `AvatarColorScheme`
+- `DSBrand.avatarGradientPairs(isDark)` → `List<AvatarGradientPair>` (11 gradient pairs)
+- `DSBrand.avatarSavedGradient(isDark)` → `AvatarGradientPair` (saved/bookmark gradient)
 - `DSBrand.attachedMediaColorScheme(isDark)` → `AttachedMediaColorScheme`
 
 ## Adding a New Component
@@ -568,6 +581,8 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Preview container**: 192dp height, rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
 - **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
+- **Accent colors**: text input cursors, selection handles (`CompositionLocalProvider` + `LocalTextSelectionColors`), and slider controls use `Color(brand.accentColor(isDarkTheme))` -- **NEVER** use `MaterialTheme.colorScheme.primary` for these in preview screens
+- **State persistence**: all control states (`selectedBrand`, `selectedView`, etc.) must use `rememberSaveable` (not `remember`) to survive screen rotation. Use `remember` only for UI-only states like press animations
 - **Bottom padding**: all preview screens use 24dp bottom padding (`padding(bottom = 24.dp)`) for safe area spacing below the last control
 - **Routing**: `MainActivity.kt` dispatches to the correct preview screen via `when (componentId)` block
 
