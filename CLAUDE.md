@@ -211,7 +211,7 @@ A checkbox component with square and circle shapes, optional label text, and ena
 **Architecture:**
 
 - Extends `LinearLayout` with `HORIZONTAL` orientation and `CENTER_VERTICAL` gravity
-- Custom XML attributes declared in `res/values/attrs.xml` (checkboxShape, checkboxChecked, checkboxEnabled, checkboxShowText, checkboxText, 7 color attrs)
+- Custom XML attributes declared in `res/values/attrs.xml` (checkboxShape, checkboxChecked, checkboxEnabled, checkboxShowText, checkboxText, 8 color attrs)
 - Programmatic API via `configure()`, `setChecked()`, `getChecked()`, `toggle()` methods
 - `onCheckedChange: ((Boolean) -> Unit)?` callback fired on toggle
 - Theming through `CheckboxColorScheme` data class -- colors flow from `DSBrand.checkboxColorScheme(isDark)`
@@ -229,6 +229,7 @@ A checkbox component with square and circle shapes, optional label text, and ena
 | `checkedFill` | accentColor | per-brand | per-brand |
 | `checkedFillDisabled` | accentColor 40% | per-brand @40% alpha | per-brand @40% alpha |
 | `checkmarkColor` | white | #FFFFFF | #FFFFFF |
+| `checkmarkColorDisabled` | white50 | #80FFFFFF | #80FFFFFF |
 | `textEnabled` | basicColor50 | #80000000 | #80FFFFFF |
 | `textDisabled` | basicColor25 | #40000000 | #40FFFFFF |
 
