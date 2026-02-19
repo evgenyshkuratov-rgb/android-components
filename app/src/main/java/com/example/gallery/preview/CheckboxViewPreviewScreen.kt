@@ -80,7 +80,7 @@ fun CheckboxViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onTheme
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
+                .height(192.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(bgColor)
                 .pointerInput(Unit) {

@@ -79,4 +79,35 @@
         <attr name="attachedVideoPlayBg" format="color"/>
         <attr name="attachedVideoPlayIconTint" format="color"/>
     </declare-styleable>
+
+    <declare-styleable name="AvatarView">
+        <attr name="avatarViewType" format="enum">
+            <enum name="image" value="0"/>
+            <enum name="initials" value="1"/>
+            <enum name="bot" value="2"/>
+            <enum name="saved" value="3"/>
+        </attr>
+        <attr name="avatarSize" format="enum">
+            <enum name="size_160" value="0"/>
+            <enum name="size_120" value="1"/>
+            <enum name="size_80" value="2"/>
+            <enum name="size_56" value="3"/>
+            <enum name="size_48" value="4"/>
+            <enum name="size_40" value="5"/>
+            <enum name="size_36" value="6"/>
+            <enum name="size_32" value="7"/>
+            <enum name="size_24" value="8"/>
+            <enum name="size_20" value="9"/>
+            <enum name="size_18" value="10"/>
+            <enum name="size_16" value="11"/>
+        </attr>
+        <attr name="avatarText" format="string"/>
+        <attr name="avatarInitialsGradientTop" format="color"/>
+        <attr name="avatarInitialsGradientBottom" format="color"/>
+        <attr name="avatarBotGradientTop" format="color"/>
+        <attr name="avatarBotGradientBottom" format="color"/>
+        <attr name="avatarSavedGradientTop" format="color"/>
+        <attr name="avatarSavedGradientBottom" format="color"/>
+        <attr name="avatarContentColor" format="color"/>
+    </declare-styleable>
 </resources>

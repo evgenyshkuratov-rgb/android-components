@@ -84,7 +84,7 @@ fun ChipsViewPreviewScreen(componentId: String, isDarkTheme: Boolean, onThemeCha
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
+                .height(192.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(bgColor)
                 .pointerInput(Unit) {

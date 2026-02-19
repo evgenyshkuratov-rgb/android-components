@@ -3,6 +3,10 @@
   "platform": "android",
   "components": [
     {
+      "name": "AvatarView",
+      "description": "Circular avatar with image, initials, bot, and saved modes in 12 sizes"
+    },
+    {
       "name": "ChipsView",
       "description": "Filter chip with Default, Active, and Avatar states in two sizes (32dp, 40dp)"
     },

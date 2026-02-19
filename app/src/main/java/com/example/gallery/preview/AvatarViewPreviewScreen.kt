@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -17,6 +18,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,11 +32,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.components.attachedmedia.AttachedMediaView
+import com.example.components.avatar.AvatarView
 import com.example.components.designsystem.DSBrand
 import com.example.components.designsystem.DSCornerRadius
 import com.example.components.designsystem.DSIcon
@@ -42,7 +45,7 @@ import com.example.gallery.theme.toComposeTextStyle
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AttachedMediaViewPreviewScreen(
+fun AvatarViewPreviewScreen(
     componentId: String,
     isDarkTheme: Boolean,
     onThemeChanged: (Boolean) -> Unit,
@@ -51,11 +54,9 @@ fun AttachedMediaViewPreviewScreen(
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     var selectedBrand by remember { mutableIntStateOf(0) }
-    var selectedType by remember { mutableIntStateOf(0) }
-    var selectedError by remember { mutableIntStateOf(0) }
-    var selectedFileType by remember { mutableIntStateOf(0) }
-    var selectedMediaFileType by remember { mutableIntStateOf(0) } // 0=Image, 1=Video
-    var fileName by remember { mutableStateOf("") }
+    var selectedView by remember { mutableIntStateOf(0) }
+    var selectedSizeIndex by remember { mutableIntStateOf(4) } // default SIZE_48
+    var initialsText by remember { mutableStateOf("") }
 
     val brand = DSBrand.entries[selectedBrand]
     val scrollState = rememberScrollState()
@@ -103,16 +104,16 @@ fun AttachedMediaViewPreviewScreen(
             }
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Attached Media",
+                text = "Avatar",
                 style = DSTypography.title5B.toComposeTextStyle(),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f)
             )
-            AttachedMediaCompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
+            AvatarCompactThemeToggle(isDarkTheme = isDarkTheme, onThemeChanged = onThemeChanged)
         }
 
         // Brand selector
-        AttachedMediaSegmentedControl(
+        AvatarSegmentedControl(
             options = DSBrand.entries.map { it.displayName },
             selectedIndex = selectedBrand,
             onSelect = { selectedBrand = it }
@@ -120,7 +121,7 @@ fun AttachedMediaViewPreviewScreen(
 
         // Preview container
         val brandCount = DSBrand.entries.size
-        val bgColor = Color(brand.backgroundBase(isDarkTheme))
+        val bgColor = Color(brand.backgroundSecond(isDarkTheme))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -147,58 +148,35 @@ fun AttachedMediaViewPreviewScreen(
                 },
             contentAlignment = Alignment.Center
         ) {
-            val previewKey = AttachedMediaPreviewKey(
+            val previewKey = AvatarPreviewKey(
                 brand = selectedBrand,
                 dark = isDarkTheme,
-                type = selectedType,
-                fileType = selectedFileType,
-                mediaFileType = selectedMediaFileType,
-                error = selectedError,
-                fileName = fileName
+                view = selectedView,
+                size = selectedSizeIndex,
+                initials = initialsText
             )
             key(previewKey) {
                 val tBrand = DSBrand.entries[previewKey.brand]
-                val tType = AttachedMediaView.MediaType.entries[previewKey.type]
-                val tFileType = AttachedMediaView.FileType.entries[previewKey.fileType]
-                val tIsError = previewKey.error == 1
-                val tIsMediaVideo = previewKey.mediaFileType == 1
-                val needsThumbnail = tType == AttachedMediaView.MediaType.MEDIA ||
-                        (tType == AttachedMediaView.MediaType.FILE && (tFileType == AttachedMediaView.FileType.IMAGE || tFileType == AttachedMediaView.FileType.VIDEO))
-                val sampleBitmap = if (needsThumbnail) {
-                    remember { loadSampleImage(context) }
+                val tViewType = AvatarView.AvatarViewType.entries[previewKey.view]
+                val tSize = AvatarView.AvatarSize.entries[previewKey.size]
+                val needsImage = tViewType == AvatarView.AvatarViewType.IMAGE
+                val sampleBitmap = if (needsImage) {
+                    remember { loadAvatarImage(context) }
                 } else null
 
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     AndroidView(
                         factory = { ctx ->
-                            val view = AttachedMediaView(ctx)
-                            val colorScheme = tBrand.attachedMediaColorScheme(previewKey.dark)
-                            val defaultName = when (tFileType) {
-                                AttachedMediaView.FileType.FILE -> "document"
-                                AttachedMediaView.FileType.AUDIO -> "recording"
-                                AttachedMediaView.FileType.IMAGE -> "photo"
-                                AttachedMediaView.FileType.VIDEO -> "video"
-                            }
-                            val ext = when (tFileType) {
-                                AttachedMediaView.FileType.FILE -> "pdf"
-                                AttachedMediaView.FileType.AUDIO -> "mp3"
-                                AttachedMediaView.FileType.IMAGE -> "jpg"
-                                AttachedMediaView.FileType.VIDEO -> "mp4"
-                            }
-                            val displayName = if (previewKey.fileName.isNotBlank()) previewKey.fileName else defaultName
-                            view.configure(
-                                type = tType,
-                                fileType = tFileType,
-                                fileName = "$displayName.$ext",
-                                fileSize = "2.4 MB",
-                                errorText = "Upload error",
-                                isError = tIsError,
-                                thumbnailImage = sampleBitmap,
-                                mediaDuration = if (tIsMediaVideo) "1:23" else "",
-                                showBadge = tType == AttachedMediaView.MediaType.MEDIA && tIsMediaVideo && !tIsError,
+                            val avatar = AvatarView(ctx)
+                            val colorScheme = tBrand.avatarColorScheme(previewKey.dark)
+                            avatar.configure(
+                                type = tViewType,
+                                size = tSize,
+                                text = previewKey.initials.ifEmpty { "AB" },
+                                image = sampleBitmap,
                                 colorScheme = colorScheme
                             )
-                            view
+                            avatar
                         },
                         modifier = Modifier.wrapContentSize()
                     )
@@ -206,84 +184,55 @@ fun AttachedMediaViewPreviewScreen(
             }
         }
 
-        // Controls
-        AttachedMediaControlRow(label = "Type") {
-            AttachedMediaSegmentedControl(
-                options = listOf("File", "Media"),
-                selectedIndex = selectedType,
-                onSelect = { selectedType = it }
+        // View control
+        AvatarControlRow(label = "View") {
+            AvatarSegmentedControl(
+                options = listOf("Image", "Initials", "Bot", "Saved"),
+                selectedIndex = selectedView,
+                onSelect = { selectedView = it }
             )
         }
 
-        AttachedMediaControlRow(label = "Error") {
-            AttachedMediaSegmentedControl(
-                options = listOf("No", "Yes"),
-                selectedIndex = selectedError,
-                onSelect = { selectedError = it }
+        // Size control
+        AvatarControlRow(label = "Size") {
+            AvatarSizeSlider(
+                sizes = AvatarView.AvatarSize.entries,
+                selectedIndex = selectedSizeIndex,
+                onSelect = { selectedSizeIndex = it }
             )
         }
 
-        if (selectedType == 0) {
-            AttachedMediaControlRow(label = "File Type") {
-                AttachedMediaSegmentedControl(
-                    options = listOf("File", "Audio", "Image", "Video"),
-                    selectedIndex = selectedFileType,
-                    onSelect = { selectedFileType = it }
-                )
-            }
-
-            AttachedMediaControlRow(label = "File Name") {
-                val ext = when (AttachedMediaView.FileType.entries[selectedFileType]) {
-                    AttachedMediaView.FileType.FILE -> "pdf"
-                    AttachedMediaView.FileType.AUDIO -> "mp3"
-                    AttachedMediaView.FileType.IMAGE -> "jpg"
-                    AttachedMediaView.FileType.VIDEO -> "mp4"
-                }
-                val placeholder = when (AttachedMediaView.FileType.entries[selectedFileType]) {
-                    AttachedMediaView.FileType.FILE -> "document"
-                    AttachedMediaView.FileType.AUDIO -> "recording"
-                    AttachedMediaView.FileType.IMAGE -> "photo"
-                    AttachedMediaView.FileType.VIDEO -> "video"
-                }
-                AttachedMediaTextInput(
-                    value = fileName,
-                    onValueChange = { fileName = it },
-                    placeholder = placeholder,
-                    suffix = ".$ext"
-                )
-            }
-        } else {
-            AttachedMediaControlRow(label = "File Type") {
-                AttachedMediaSegmentedControl(
-                    options = listOf("Image", "Video"),
-                    selectedIndex = selectedMediaFileType,
-                    onSelect = { selectedMediaFileType = it }
+        // Initials text input (visible only for Initials view)
+        if (selectedView == 1) {
+            AvatarControlRow(label = "Initials") {
+                AvatarTextInput(
+                    value = initialsText,
+                    onValueChange = { if (it.length <= 2) initialsText = it },
+                    placeholder = "AB"
                 )
             }
         }
     }
 }
 
-private data class AttachedMediaPreviewKey(
+private data class AvatarPreviewKey(
     val brand: Int,
     val dark: Boolean,
-    val type: Int,
-    val fileType: Int,
-    val mediaFileType: Int,
-    val error: Int,
-    val fileName: String
+    val view: Int,
+    val size: Int,
+    val initials: String
 )
 
-private fun loadSampleImage(context: Context): Bitmap? {
+private fun loadAvatarImage(context: Context): Bitmap? {
     return try {
-        context.assets.open("images/sample.jpg").use { BitmapFactory.decodeStream(it) }
+        context.assets.open("images/avatar.jpg").use { BitmapFactory.decodeStream(it) }
     } catch (_: Exception) {
         null
     }
 }
 
 @Composable
-private fun AttachedMediaCompactThemeToggle(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
+private fun AvatarCompactThemeToggle(isDarkTheme: Boolean, onThemeChanged: (Boolean) -> Unit) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
@@ -312,7 +261,7 @@ private fun AttachedMediaCompactThemeToggle(isDarkTheme: Boolean, onThemeChanged
 }
 
 @Composable
-private fun AttachedMediaControlRow(label: String, content: @Composable () -> Unit) {
+private fun AvatarControlRow(label: String, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(text = label, style = DSTypography.subhead4M.toComposeTextStyle(), color = MaterialTheme.colorScheme.onSurface)
         content()
@@ -320,7 +269,79 @@ private fun AttachedMediaControlRow(label: String, content: @Composable () -> Un
 }
 
 @Composable
-private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String, suffix: String) {
+private fun AvatarSegmentedControl(options: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        options.forEachIndexed { index, option ->
+            val isSelected = index == selectedIndex
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent)
+                    .clickable { onSelect(index) }
+                    .padding(vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = option,
+                    style = if (isSelected) DSTypography.subhead4M.toComposeTextStyle() else DSTypography.subhead2R.toComposeTextStyle(),
+                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AvatarSizeSlider(
+    sizes: List<AvatarView.AvatarSize>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit
+) {
+    val lastIndex = sizes.lastIndex
+    val invertedValue = (lastIndex - selectedIndex).toFloat()
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "${sizes[selectedIndex].dp}dp",
+                style = DSTypography.subhead4M.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "${sizes.last().dp} – ${sizes.first().dp}",
+                style = DSTypography.caption2R.toComposeTextStyle(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Slider(
+            value = invertedValue,
+            onValueChange = { onSelect(lastIndex - it.roundToInt()) },
+            valueRange = 0f..lastIndex.toFloat(),
+            steps = lastIndex - 1,
+            colors = SliderDefaults.colors(
+                thumbColor = MaterialTheme.colorScheme.primary,
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+    }
+}
+
+@Composable
+private fun AvatarTextInput(value: String, onValueChange: (String) -> Unit, placeholder: String) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val clearIcon = remember { DSIcon.named(context, "clear-field", 24f) as? BitmapDrawable }
@@ -355,12 +376,6 @@ private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Uni
                     }
                     innerTextField()
                 }
-                Text(
-                    text = suffix,
-                    style = DSTypography.subhead2R.toComposeTextStyle(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-                    modifier = Modifier.padding(end = 4.dp)
-                )
                 if (value.isNotEmpty()) {
                     clearIcon?.bitmap?.let { bmp ->
                         Box(
@@ -383,35 +398,4 @@ private fun AttachedMediaTextInput(value: String, onValueChange: (String) -> Uni
         },
         modifier = Modifier.fillMaxWidth()
     )
-}
-
-@Composable
-private fun AttachedMediaSegmentedControl(options: List<String>, selectedIndex: Int, onSelect: (Int) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(DSCornerRadius.inputField.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        options.forEachIndexed { index, option ->
-            val isSelected = index == selectedIndex
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(if (isSelected) MaterialTheme.colorScheme.surface else Color.Transparent)
-                    .clickable { onSelect(index) }
-                    .padding(vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = option,
-                    style = if (isSelected) DSTypography.subhead4M.toComposeTextStyle() else DSTypography.subhead2R.toComposeTextStyle(),
-                    color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-            }
-        }
-    }
 }

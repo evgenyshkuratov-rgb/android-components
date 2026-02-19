@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
 import com.example.components.attachedmedia.AttachedMediaColorScheme
+import com.example.components.avatar.AvatarColorScheme
 import com.example.components.checkbox.CheckboxColorScheme
 import com.example.components.chips.ChipsColorScheme
 
@@ -83,6 +84,16 @@ enum class DSBrand(val displayName: String) {
         dangerColor = dangerDefault(),
         videoPlayBg = Color.parseColor("#80000000"),
         videoPlayIconTint = Color.parseColor("#B3FFFFFF")
+    )
+
+    fun avatarColorScheme(isDark: Boolean) = AvatarColorScheme(
+        initialsGradientTop = Color.parseColor("#4BCBEC"),
+        initialsGradientBottom = Color.parseColor("#0099D6"),
+        botGradientTop = Color.parseColor("#70ACF1"),
+        botGradientBottom = Color.parseColor("#407EDA"),
+        savedGradientTop = Color.parseColor("#BABABA"),
+        savedGradientBottom = Color.parseColor("#777784"),
+        contentColor = Color.WHITE
     )
 
     fun chipsColorScheme(isDark: Boolean) = ChipsColorScheme(

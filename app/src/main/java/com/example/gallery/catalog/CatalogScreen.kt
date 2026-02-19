@@ -48,6 +48,7 @@ private data class ComponentEntry(val id: String, val name: String, val descript
 
 private val components = listOf(
     ComponentEntry("AttachedMediaView", "Attached Media", "File and media attachments with error states and file type icons"),
+    ComponentEntry("AvatarView", "Avatar", "Circular avatar with image, initials, bot, and saved modes in 12 sizes"),
     ComponentEntry("CheckboxView", "Checkbox", "Checkbox with square and circle shapes, label text, and enabled/disabled states"),
     ComponentEntry("ChipsView", "Chips", "Filter chips with Default, Active, and Avatar states")
 )

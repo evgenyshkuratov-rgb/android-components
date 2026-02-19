@@ -1,0 +1,15 @@
+{
+  "name": "AvatarView",
+  "description": "Circular avatar component with 4 view modes (Image, Initials, Bot, Saved) and 12 sizes from 160dp to 16dp. Supports gradient backgrounds for non-image modes and brand-aware theming.",
+  "import": "com.example.components.avatar.AvatarView",
+  "properties": [
+    { "name": "type", "type": "AvatarViewType", "description": "Display mode: IMAGE (photo), INITIALS (text on gradient), BOT (bot icon on gradient), SAVED (bookmark icon on gray gradient)" },
+    { "name": "size", "type": "AvatarSize", "description": "Avatar size: SIZE_160, SIZE_120, SIZE_80, SIZE_56, SIZE_48, SIZE_40, SIZE_36, SIZE_32, SIZE_24, SIZE_20, SIZE_18, SIZE_16" },
+    { "name": "text", "type": "String", "description": "Initials text (1-2 characters), used when type is INITIALS" },
+    { "name": "image", "type": "Bitmap?", "description": "Photo bitmap, used when type is IMAGE" },
+    { "name": "colorScheme", "type": "AvatarColorScheme", "description": "Color scheme with gradient colors for each mode and content color" }
+  ],
+  "xmlUsage": "<com.example.components.avatar.AvatarView\n    android:layout_width=\"wrap_content\"\n    android:layout_height=\"wrap_content\"\n    app:avatarViewType=\"initials\"\n    app:avatarSize=\"size_48\"\n    app:avatarText=\"AB\" />",
+  "kotlinUsage": "val avatar = AvatarView(context)\navatar.configure(\n    type = AvatarView.AvatarViewType.INITIALS,\n    size = AvatarView.AvatarSize.SIZE_48,\n    text = \"AB\",\n    colorScheme = brand.avatarColorScheme(isDark)\n)",
+  "tags": ["avatar", "profile", "image", "initials", "bot", "saved", "circular"]
+}
