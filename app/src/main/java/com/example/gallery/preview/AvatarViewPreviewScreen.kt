@@ -220,7 +220,7 @@ fun AvatarViewPreviewScreen(
                             val gradientPairs = tBrand.avatarGradientPairs(previewKey.dark)
                             val selectedPair = gradientPairs[previewKey.gradientIndex % gradientPairs.size]
                             val colorScheme = if (isCrownVariant) {
-                                val badgeColor = tBrand.newBadgeColor(previewKey.dark)
+                                val badgeColor = tBrand.accentColor(previewKey.dark)
                                 baseScheme.copy(
                                     savedGradientTop = badgeColor,
                                     savedGradientBottom = badgeColor
