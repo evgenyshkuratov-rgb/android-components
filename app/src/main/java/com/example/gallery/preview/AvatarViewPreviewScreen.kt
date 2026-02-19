@@ -22,8 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.CompositionLocalProvider
@@ -41,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.components.avatar.AvatarView
 import com.example.components.designsystem.DSBrand
@@ -260,12 +257,15 @@ fun AvatarViewPreviewScreen(
         }
 
         // Size control
-        AvatarControlRow(label = "Size") {
-            AvatarSizeSlider(
-                sizes = AvatarView.AvatarSize.entries,
+        val sizes = AvatarView.AvatarSize.entries
+        AvatarControlRow(label = "Size \u00B7 ${sizes[selectedSizeIndex].dp}dp") {
+            PreviewSlider(
+                values = sizes.map { "${it.dp}" },
                 selectedIndex = selectedSizeIndex,
                 onSelect = { selectedSizeIndex = it },
-                accentColor = Color(brand.accentColor(isDarkTheme))
+                accentColor = Color(brand.accentColor(isDarkTheme)),
+                startLabel = "${sizes.last().dp}",
+                endLabel = "${sizes.first().dp}"
             )
         }
 
@@ -381,48 +381,6 @@ private fun AvatarSegmentedControl(options: List<String>, selectedIndex: Int, on
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun AvatarSizeSlider(
-    sizes: List<AvatarView.AvatarSize>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit,
-    accentColor: Color
-) {
-    val lastIndex = sizes.lastIndex
-    val invertedValue = (lastIndex - selectedIndex).toFloat()
-
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "${sizes[selectedIndex].dp}dp",
-                style = DSTypography.subhead4M.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "${sizes.last().dp} – ${sizes.first().dp}",
-                style = DSTypography.caption2R.toComposeTextStyle(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-            )
-        }
-        Spacer(modifier = Modifier.height(4.dp))
-        Slider(
-            value = invertedValue,
-            onValueChange = { onSelect(lastIndex - it.roundToInt()) },
-            valueRange = 0f..lastIndex.toFloat(),
-            steps = lastIndex - 1,
-            colors = SliderDefaults.colors(
-                thumbColor = accentColor,
-                activeTrackColor = accentColor,
-                inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        )
     }
 }
 
