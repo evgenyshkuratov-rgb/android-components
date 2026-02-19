@@ -66,6 +66,7 @@ fun AvatarViewPreviewScreen(
     var initialsText by rememberSaveable { mutableStateOf("") }
     var selectedImageIndex by rememberSaveable { mutableIntStateOf(0) }
     var selectedGradientIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedIconVariant by rememberSaveable { mutableIntStateOf(0) } // 0=bookmark, 1=crown
 
     val avatarImages = remember { loadAllAvatarImages(context) }
     val avatarCount = avatarImages.size
@@ -181,6 +182,7 @@ fun AvatarViewPreviewScreen(
                                 1 -> if (gradientCount > 0) {
                                     selectedGradientIndex = (selectedGradientIndex + 1) % gradientCount
                                 }
+                                3 -> selectedIconVariant = (selectedIconVariant + 1) % 2
                             }
                         }
                     )
@@ -194,7 +196,8 @@ fun AvatarViewPreviewScreen(
                 size = selectedSizeIndex,
                 initials = initialsText,
                 imageIndex = selectedImageIndex,
-                gradientIndex = selectedGradientIndex
+                gradientIndex = selectedGradientIndex,
+                iconVariant = selectedIconVariant
             )
             key(previewKey) {
                 val tBrand = DSBrand.entries[previewKey.brand]
@@ -204,6 +207,10 @@ fun AvatarViewPreviewScreen(
                 val sampleBitmap = if (needsImage && avatarImages.isNotEmpty()) {
                     avatarImages[previewKey.imageIndex % avatarImages.size]
                 } else null
+
+                // Determine icon name and gradient for SAVED/Icon mode
+                val isCrownVariant = tViewType == AvatarView.AvatarViewType.SAVED && previewKey.iconVariant == 1
+                val iconName = if (isCrownVariant) "crown" else "bookmark"
 
                 Box(
                     modifier = Modifier.fillMaxSize().scale(previewScale),
@@ -215,15 +222,24 @@ fun AvatarViewPreviewScreen(
                             val baseScheme = tBrand.avatarColorScheme(previewKey.dark)
                             val gradientPairs = tBrand.avatarGradientPairs(previewKey.dark)
                             val selectedPair = gradientPairs[previewKey.gradientIndex % gradientPairs.size]
-                            val colorScheme = baseScheme.copy(
-                                initialsGradientTop = selectedPair.top,
-                                initialsGradientBottom = selectedPair.bottom
-                            )
+                            val colorScheme = if (isCrownVariant) {
+                                val badgeColor = tBrand.newBadgeColor(previewKey.dark)
+                                baseScheme.copy(
+                                    savedGradientTop = badgeColor,
+                                    savedGradientBottom = badgeColor
+                                )
+                            } else {
+                                baseScheme.copy(
+                                    initialsGradientTop = selectedPair.top,
+                                    initialsGradientBottom = selectedPair.bottom
+                                )
+                            }
                             avatar.configure(
                                 type = tViewType,
                                 size = tSize,
                                 text = previewKey.initials.ifEmpty { "AB" },
                                 image = sampleBitmap,
+                                iconName = iconName,
                                 colorScheme = colorScheme
                             )
                             avatar
@@ -237,7 +253,7 @@ fun AvatarViewPreviewScreen(
         // View control
         AvatarControlRow(label = "View") {
             AvatarSegmentedControl(
-                options = listOf("Image", "Initials", "Bot", "Saved"),
+                options = listOf("Image", "Initials", "Bot", "Icon"),
                 selectedIndex = selectedView,
                 onSelect = { selectedView = it }
             )
@@ -274,7 +290,8 @@ private data class AvatarPreviewKey(
     val size: Int,
     val initials: String,
     val imageIndex: Int,
-    val gradientIndex: Int
+    val gradientIndex: Int,
+    val iconVariant: Int
 )
 
 private val avatarFiles = listOf(

@@ -45,6 +45,7 @@ class AvatarView @JvmOverloads constructor(
     private var currentSize: AvatarSize = AvatarSize.SIZE_48
     private var initialsText: String = ""
     private var imageBitmap: Bitmap? = null
+    private var currentIconName: String = "bookmark"
     private var colorScheme: AvatarColorScheme = AvatarColorScheme.DEFAULT
 
     private val avatarImage: ImageView
@@ -91,12 +92,14 @@ class AvatarView @JvmOverloads constructor(
         size: AvatarSize = AvatarSize.SIZE_48,
         text: String = "",
         image: Bitmap? = null,
+        iconName: String = "bookmark",
         colorScheme: AvatarColorScheme = AvatarColorScheme.DEFAULT
     ) {
         currentType = type
         currentSize = size
         initialsText = text
         imageBitmap = image
+        currentIconName = iconName
         this.colorScheme = colorScheme
         updateAppearance()
     }
@@ -160,7 +163,7 @@ class AvatarView @JvmOverloads constructor(
             currentSize.dp >= 40 -> 24
             else -> 16
         }
-        val iconDrawable = DSIcon.named(context, "bookmark", iconSizeDp.toFloat())
+        val iconDrawable = DSIcon.named(context, currentIconName, iconSizeDp.toFloat())
         avatarIcon.setImageDrawable(iconDrawable)
         avatarIcon.setColorFilter(colorScheme.contentColor, android.graphics.PorterDuff.Mode.SRC_IN)
 

@@ -65,6 +65,14 @@ enum class DSBrand(val displayName: String) {
         )
     }
 
+    fun newBadgeColor(isDark: Boolean): Int = when (this) {
+        FRISBEE -> Color.parseColor("#40B259")
+        TDM -> Color.parseColor("#E5505A")
+        SOVER -> Color.parseColor(if (isDark) "#C4944D" else "#C7964F")
+        KCHAT -> Color.parseColor("#E5505A")
+        SENSE_NEW -> Color.parseColor(if (isDark) "#824FC2" else "#7548AD")
+    }
+
     fun dangerDefault(): Int = Color.parseColor("#E06141")
 
     fun attachedMediaColorScheme(isDark: Boolean) = AttachedMediaColorScheme(
