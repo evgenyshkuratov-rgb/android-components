@@ -275,7 +275,7 @@ A circular avatar component with 4 view modes and 12 sizes, using gradient backg
 | `IMAGE` | None (photo fills circle) | Circular-clipped bitmap photo |
 | `INITIALS` | Gradient top→bottom (cyan) | White centered text (1-2 chars, always uppercase) |
 | `BOT` | Gradient top→bottom (blue) | White `bot` icon (~50% of avatar size) |
-| `SAVED` | Gray gradient | White `bookmark` icon (32dp for ≥120, 24dp for ≥40, 16dp for <40) |
+| `SAVED` (Icon) | Gray gradient (or solid `newBadgeColor`) | White configurable icon via `iconName` param (default `bookmark`; 32dp for ≥120, 24dp for ≥40, 16dp for <40) |
 
 **Sizes:** 160, 120, 80, 56, 48, 40, 36, 32, 24, 20, 18, 16 dp
 
@@ -283,7 +283,7 @@ A circular avatar component with 4 view modes and 12 sizes, using gradient backg
 
 - Extends `FrameLayout` with circular clip via `outlineProvider + clipToOutline`
 - Custom XML attributes declared in `res/values/attrs.xml` (avatarViewType, avatarSize, avatarText, 7 color attrs)
-- Programmatic API via `configure()` method
+- Programmatic API via `configure()` method with optional `iconName` parameter for SAVED mode (default `"bookmark"`, also supports `"crown"` etc.)
 - Theming through `AvatarColorScheme` data class -- colors flow from `DSBrand.avatarColorScheme(isDark)`
 - Layout inflated from `res/layout/view_avatar.xml` using `<merge>` tag (ImageView + TextView + ImageView)
 - Gradient background via `GradientDrawable(TOP_BOTTOM, intArrayOf(top, bottom))` with `shape = OVAL`
@@ -332,9 +332,10 @@ A circular avatar component with 4 view modes and 12 sizes, using gradient backg
 val avatar = AvatarView(context)
 avatar.configure(
     type = AvatarView.AvatarViewType.INITIALS,
-    size = AvatarView.AvatarSize.SIZE_48,
+    size = AvatarView.AvatarSize.SIZE_56,
     text = "AB",
     image = bitmap,
+    iconName = "bookmark", // or "crown" for new badge variant
     colorScheme = brand.avatarColorScheme(isDark)
 )
 ```
@@ -342,11 +343,12 @@ avatar.configure(
 **Preview Controls:**
 
 - Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
-- View: Image / Initials / Bot / Saved (segmented)
-- Size: Slider control (16dp–160dp) with brand accent color for thumb and active track
+- View: Image / Initials / Bot / Icon (segmented)
+- Size: Slider control (16dp–160dp, default 56dp) with brand accent color for thumb and active track
 - Initials: text input (visible only when View=Initials), max 2 chars, placeholder "AB" used as default when empty; brand accent cursor and selection handles
 - **Tap-to-cycle (Image mode):** tapping preview cycles through 9 avatar photos (`avatar_01..09`) with spring scale animation (0.9x press feedback)
 - **Tap-to-cycle (Initials mode):** tapping preview cycles through 11 Avatarka gradient pairs (brand- and theme-aware)
+- **Tap-to-toggle (Icon mode):** tapping preview toggles between bookmark (saved gray gradient) and crown (solid `newBadgeColor` brand accent background)
 
 ### AttachedMediaView
 
@@ -466,6 +468,7 @@ Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generat
 - `DSBrand.avatarColorScheme(isDark)` → `AvatarColorScheme`
 - `DSBrand.avatarGradientPairs(isDark)` → `List<AvatarGradientPair>` (11 gradient pairs)
 - `DSBrand.avatarSavedGradient(isDark)` → `AvatarGradientPair` (saved/bookmark gradient)
+- `DSBrand.newBadgeColor(isDark)` → `Int` (brand accent for new badge / crown icon variant)
 - `DSBrand.attachedMediaColorScheme(isDark)` → `AttachedMediaColorScheme`
 
 ## Adding a New Component
