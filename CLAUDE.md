@@ -79,6 +79,9 @@ android-components/
 │   │   │   ├── attachedmedia/
 │   │   │   │   ├── AttachedMediaView.kt  # Attached media custom View (File/Media modes)
 │   │   │   │   └── AttachedMediaColorScheme.kt # Color scheme data class
+│   │   │   ├── avatar/
+│   │   │   │   ├── AvatarView.kt         # Circular avatar View (Image/Initials/Bot/Saved)
+│   │   │   │   └── AvatarColorScheme.kt  # Color scheme data class
 │   │   │   ├── chips/
 │   │   │   │   ├── ChipsView.kt        # Custom View with XML attrs
 │   │   │   │   └── ChipsColorScheme.kt # Color scheme data class
@@ -97,6 +100,7 @@ android-components/
 │   │   │   ├── font/roboto_mono.ttf     # Roboto Mono variable font
 │   │   │   ├── layout/view_chips.xml    # ChipsView internal layout
 │   │   │   ├── layout/view_checkbox.xml # CheckboxView internal layout
+│   │   │   ├── layout/view_avatar.xml   # AvatarView internal layout
 │   │   │   └── layout/view_attached_media.xml # AttachedMediaView internal layout
 │   │   └── AndroidManifest.xml
 │   └── build.gradle.kts
@@ -110,13 +114,16 @@ android-components/
 │   │   │   ├── preview/
 │   │   │   │   ├── ChipsViewPreviewScreen.kt    # ChipsView interactive preview
 │   │   │   │   ├── CheckboxViewPreviewScreen.kt # CheckboxView interactive preview
+│   │   │   │   ├── AvatarViewPreviewScreen.kt   # AvatarView interactive preview
 │   │   │   │   └── AttachedMediaViewPreviewScreen.kt # AttachedMediaView interactive preview
 │   │   │   └── theme/
 │   │   │       ├── GalleryTheme.kt      # Compose theme wrapping DS tokens
 │   │   │       └── DSTypographyCompose.kt # DSTextStyle → Compose TextStyle bridge
 │   │   ├── assets/
 │   │   │   ├── icons/                   # 280 SVG icons + frisbee-logo.svg
-│   │   │   └── images/sample.jpg        # Sample image for component previews
+│   │   │   └── images/
+│   │   │       ├── sample.jpg           # Sample image for AttachedMedia previews
+│   │   │       └── avatar.jpg           # Sample photo for AvatarView previews
 │   │   └── res/
 │   └── build.gradle.kts                 # Includes generateDesignSystemCounts task
 │
@@ -125,6 +132,7 @@ android-components/
 │   └── components/
 │       ├── ChipsView.json               # ChipsView specification
 │       ├── CheckboxView.json            # CheckboxView specification
+│       ├── AvatarView.json              # AvatarView specification
 │       └── AttachedMediaView.json       # AttachedMediaView specification
 │
 ├── mcp-server/                          # MCP server (Node.js)
@@ -256,6 +264,79 @@ checkbox.onCheckedChange = { checked -> /* handle change */ }
 - Enabled: Yes / No
 - Interactive: tapping the checkbox toggles it live, synced with Compose state
 
+### AvatarView
+
+A circular avatar component with 4 view modes and 12 sizes, using gradient backgrounds and brand-aware theming.
+
+**View Modes:**
+
+| Mode | Background | Content |
+|------|-----------|---------|
+| `IMAGE` | None (photo fills circle) | Circular-clipped bitmap photo |
+| `INITIALS` | Gradient top→bottom (cyan) | White centered text (1-2 chars, always uppercase) |
+| `BOT` | Gradient top→bottom (blue) | White `bot` icon (~50% of avatar size) |
+| `SAVED` | Gray gradient | White `bookmark` icon (32dp for ≥120, 24dp for ≥40, 16dp for <40) |
+
+**Sizes:** 160, 120, 80, 56, 48, 40, 36, 32, 24, 20, 18, 16 dp
+
+**Architecture:**
+
+- Extends `FrameLayout` with circular clip via `outlineProvider + clipToOutline`
+- Custom XML attributes declared in `res/values/attrs.xml` (avatarViewType, avatarSize, avatarText, 7 color attrs)
+- Programmatic API via `configure()` method
+- Theming through `AvatarColorScheme` data class -- colors flow from `DSBrand.avatarColorScheme(isDark)`
+- Layout inflated from `res/layout/view_avatar.xml` using `<merge>` tag (ImageView + TextView + ImageView)
+- Gradient background via `GradientDrawable(TOP_BOTTOM, intArrayOf(top, bottom))` with `shape = OVAL`
+- Initials text always converted to uppercase via `.uppercase()`
+
+**Initials Typography per Size:**
+
+| Avatar dp | DSTypography | Fallback |
+|-----------|-------------|----------|
+| 160, 120 | `title1B` | — |
+| 80 | `title3B` | — |
+| 56, 48 | `title5B` | — |
+| 40 | `body2B` | — |
+| 36 | `body3M` | — |
+| 32 | `caption1B` | — |
+| 24 | — | 10sp Medium |
+| 20 | — | 8sp Medium |
+| 18 | — | 7sp Medium |
+| 16 | — | 6sp Medium |
+
+**Color Scheme:**
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `initialsGradientTop` | #4BCBEC | Top color for initials gradient |
+| `initialsGradientBottom` | #0099D6 | Bottom color for initials gradient |
+| `botGradientTop` | #70ACF1 | Top color for bot gradient |
+| `botGradientBottom` | #407EDA | Bottom color for bot gradient |
+| `savedGradientTop` | #BABABA | Top color for saved gradient |
+| `savedGradientBottom` | #777784 | Bottom color for saved gradient |
+| `contentColor` | #FFFFFF | Text and icon color |
+
+**Programmatic Usage:**
+
+```kotlin
+val avatar = AvatarView(context)
+avatar.configure(
+    type = AvatarView.AvatarViewType.INITIALS,
+    size = AvatarView.AvatarSize.SIZE_48,
+    text = "AB",
+    image = bitmap,
+    colorScheme = brand.avatarColorScheme(isDark)
+)
+```
+
+**Preview Controls:**
+
+- Brand: 5-way segmented control (Frisbee, TDM, Sover, KCHAT, Sens) + horizontal swipe on preview
+- View: Image / Initials / Bot / Saved (segmented)
+- Size: Slider control (16dp–160dp) with current value label
+- Initials: text input (visible only when View=Initials), max 2 chars, placeholder "AB" used as default when empty
+- Avatar image loaded from `assets/images/avatar.jpg`
+
 ### AttachedMediaView
 
 A component for displaying file or media attachments with two display modes, normal and error states, and brand-aware theming.
@@ -371,6 +452,7 @@ Five brands with distinct accent colors and dark-mode background variations:
 Runtime brand switching uses `DSBrand.<component>ColorScheme(isDark)` to generate the color scheme for each component:
 - `DSBrand.chipsColorScheme(isDark)` → `ChipsColorScheme`
 - `DSBrand.checkboxColorScheme(isDark)` → `CheckboxColorScheme`
+- `DSBrand.avatarColorScheme(isDark)` → `AvatarColorScheme`
 - `DSBrand.attachedMediaColorScheme(isDark)` → `AttachedMediaColorScheme`
 
 ## Adding a New Component
@@ -483,7 +565,7 @@ Switching theme on any screen applies globally (Compose theme, preview component
 - **Title**: component name with `DSTypography.title5B` + compact theme toggle (right-aligned)
 - **Brand selector**: segmented control (Frisbee, TDM, Sover, KCHAT, Sens) using `DSTypography.subhead4M`/`subhead2R`
 - **Brand swipe**: horizontal swipe (`detectHorizontalDragGestures`, 50dp threshold) on preview container cycles brands with wrap-around (last → first, first → last)
-- **Preview container**: rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
+- **Preview container**: 192dp height, rounded card with instant background color change, live component via `AndroidView` inside `key()` for instant content updates (no animated transitions)
 - **Controls**: component-specific controls (dropdowns, segmented controls) with labels using `DSTypography.subhead4M`
 - **Dropdown styling**: `surface` background (lighter than selector trigger), `DSCornerRadius.inputField` radius on menu and items, no vertical padding (removed via layout modifier), selected item highlighted with `surfaceVariant` background + full opacity text
 - **Bottom padding**: all preview screens use 24dp bottom padding (`padding(bottom = 24.dp)`) for safe area spacing below the last control
