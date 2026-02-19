@@ -37,6 +37,7 @@
         <attr name="checkboxBorderEnabled" format="color"/>
         <attr name="checkboxBorderDisabled" format="color"/>
         <attr name="checkboxCheckedFill" format="color"/>
+        <attr name="checkboxCheckedFillDisabled" format="color"/>
         <attr name="checkboxCheckmarkColor" format="color"/>
         <attr name="checkboxTextEnabled" format="color"/>
         <attr name="checkboxTextDisabled" format="color"/>

@@ -42,7 +42,7 @@ class CheckboxDrawable : Drawable() {
         val strokeWidth = 2f * scaleX
 
         if (isChecked) {
-            fillPaint.color = colorScheme.checkedFill
+            fillPaint.color = if (isViewEnabled) colorScheme.checkedFill else colorScheme.checkedFillDisabled
             drawShape(canvas, fillPaint, width, height, CORNER_RADIUS * scaleX, Paint.Style.FILL, 0f)
 
             canvas.save()

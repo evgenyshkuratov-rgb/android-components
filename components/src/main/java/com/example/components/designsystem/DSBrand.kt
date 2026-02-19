@@ -48,14 +48,19 @@ enum class DSBrand(val displayName: String) {
     fun basicColor25(isDark: Boolean): Int = Color.parseColor(if (isDark) "#40FFFFFF" else "#40000000")
     fun basicColor60(isDark: Boolean): Int = Color.parseColor(if (isDark) "#99FFFFFF" else "#99000000")
 
-    fun checkboxColorScheme(isDark: Boolean) = CheckboxColorScheme(
-        borderEnabled = basicColor55(isDark),
-        borderDisabled = basicColor25(isDark),
-        checkedFill = accentColor(isDark),
-        checkmarkColor = Color.WHITE,
-        textEnabled = basicColor50(isDark),
-        textDisabled = basicColor25(isDark)
-    )
+    fun checkboxColorScheme(isDark: Boolean): CheckboxColorScheme {
+        val accent = accentColor(isDark)
+        val accentDisabled = (accent and 0x00FFFFFF) or 0x66000000
+        return CheckboxColorScheme(
+            borderEnabled = basicColor55(isDark),
+            borderDisabled = basicColor25(isDark),
+            checkedFill = accent,
+            checkedFillDisabled = accentDisabled,
+            checkmarkColor = Color.WHITE,
+            textEnabled = basicColor50(isDark),
+            textDisabled = basicColor25(isDark)
+        )
+    }
 
     fun dangerDefault(): Int = Color.parseColor("#E06141")
 

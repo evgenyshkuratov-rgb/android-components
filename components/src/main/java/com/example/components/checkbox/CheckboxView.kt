@@ -64,10 +64,11 @@ class CheckboxView @JvmOverloads constructor(
                 val borderEnabled = ta.getColor(R.styleable.CheckboxView_checkboxBorderEnabled, colorScheme.borderEnabled)
                 val borderDisabled = ta.getColor(R.styleable.CheckboxView_checkboxBorderDisabled, colorScheme.borderDisabled)
                 val checkedFill = ta.getColor(R.styleable.CheckboxView_checkboxCheckedFill, colorScheme.checkedFill)
+                val checkedFillDisabled = ta.getColor(R.styleable.CheckboxView_checkboxCheckedFillDisabled, colorScheme.checkedFillDisabled)
                 val checkmarkColor = ta.getColor(R.styleable.CheckboxView_checkboxCheckmarkColor, colorScheme.checkmarkColor)
                 val textEnabled = ta.getColor(R.styleable.CheckboxView_checkboxTextEnabled, colorScheme.textEnabled)
                 val textDisabled = ta.getColor(R.styleable.CheckboxView_checkboxTextDisabled, colorScheme.textDisabled)
-                colorScheme = CheckboxColorScheme(borderEnabled, borderDisabled, checkedFill, checkmarkColor, textEnabled, textDisabled)
+                colorScheme = CheckboxColorScheme(borderEnabled, borderDisabled, checkedFill, checkedFillDisabled, checkmarkColor, textEnabled, textDisabled)
             } finally {
                 ta.recycle()
             }
